@@ -78,25 +78,25 @@ export default function Banners() {
     }
   };
 
-  const toggle = async (id: string, current: boolean) => {
-    const token = localStorage.getItem("token") || "";
-    try {
-      const res = await fetch(`http://localhost:5000/api/banner/${id}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json", Authorization: token },
-        body: JSON.stringify({ banner: { isActive: !current } }),
-      });
-      if (res.ok) {
-        fetchBanners();
-      } else {
-        const data = await res.json();
-        alert(data.error || "Failed to update banner");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Network error: Could not update banner");
-    }
-  };
+  // const toggle = async (id: string, current: boolean) => {
+  //   const token = localStorage.getItem("token") || "";
+  //   try {
+  //     const res = await fetch(`http://localhost:5000/api/banner/${id}`, {
+  //       method: "PUT",
+  //       headers: { "Content-Type": "application/json", Authorization: token },
+  //       body: JSON.stringify({ banner: { isActive: !current } }),
+  //     });
+  //     if (res.ok) {
+  //       fetchBanners();
+  //     } else {
+  //       const data = await res.json();
+  //       alert(data.error || "Failed to update banner");
+  //     }
+  //   } catch (err) {
+  //     console.error(err);
+  //     alert("Network error: Could not update banner");
+  //   }
+  // };
 
   const remove = async (id: string) => {
     const token = localStorage.getItem("token") || "";
@@ -123,8 +123,8 @@ export default function Banners() {
         .toggle-slider:before { content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #555570; border-radius: 50%; transition: 0.2s; }
         input:checked + .toggle-slider { background: #7c3aed; }
         input:checked + .toggle-slider:before { transform: translateX(16px); background: #fff; }
-        .upload-box { border: 1.5px dashed #1e1e2e; border-radius: 8px; padding: 14px; text-align: center; cursor: pointer; background: #0f0f13; transition: border-color 0.15s; }
-        .upload-box:hover { border-color: #7c3aed; }
+      
+        // .upload-box:hover { border-color: #7c3aed; }
         .upload-input { display: none; }
         .banner-card-container { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
         .banner-preview-wrapper { display: flex; gap: 12px; align-items: center; flex: 1; min-width: 0; }
@@ -185,13 +185,7 @@ export default function Banners() {
 
             {/* Actions */}
             <div className="banner-actions" style={{ display: "flex", alignItems: "center", gap: 16, marginLeft: 16, flexWrap: "wrap", justifyContent: "flex-end" }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 8, whiteSpace: "nowrap" }}>
-                <span style={{ fontSize: 12, color: "#555570" }}>{banner.isActive ? "Active" : "Hidden"}</span>
-                <label className="toggle">
-                  <input type="checkbox" checked={banner.isActive} onChange={() => toggle(banner._id, banner.isActive)} />
-                  <span className="toggle-slider" />
-                </label>
-              </div>
+
               <button className="btn-ghost" onClick={() => remove(banner._id)}>Delete</button>
             </div>
           </div>
