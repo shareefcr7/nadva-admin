@@ -115,7 +115,7 @@
 //   );
 // }
 "use client";
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, useCallback, ReactNode } from "react";
 
 /* ================= TYPES ================= */
 
@@ -151,19 +151,20 @@ export default function Categories() {
   const [showModal, setShowModal] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
   const [form, setForm] = useState<FormType>({ name: "" });
+  const api = process.env.NEXT_PUBLIC_API_URL;
 
-  const fetchCategories = async () => {
-    fetch("http://localhost:5000/api/category")
+  const fetchCategories = useCallback(async () => {
+    fetch(`${api}/category`)
       .then(res => res.json())
       .then(data => {
         if (data.categories) setCategories(data.categories);
       })
       .catch(console.error);
-  };
+  }, [api]);
   
   useEffect(() => {
     fetchCategories();
-  }, []);
+  }, [fetchCategories]);
   const handleEdit = (cat: Category) => {
     setEditId(cat._id);
     setForm({ name: cat.name });

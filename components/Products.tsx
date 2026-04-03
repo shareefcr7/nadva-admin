@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 /* ─── Types ─────────────────────────────────────────── */
@@ -56,24 +56,25 @@ export default function Products() {
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [variants, setVariants]     = useState<Variant[]>([{ ...BLANK_VARIANT(), isDefault: true }]);
+  const api = process.env.NEXT_PUBLIC_API_URL;
 
-  useEffect(() => { fetchProducts(); fetchCategories(); }, []);
-
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/product", { headers: { Authorization: token() } });
+      const res = await fetch(`${api}/product`, { headers: { Authorization: token() } });
       const data = await res.json();
       if (data.products) setProducts(data.products);
     } catch (e) { console.error(e); }
-  };
+  }, [api]);
 
-  const fetchCategories = async () => {
+  const fetchCategories = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/category");
+      const res = await fetch(`${api}/category`);
       const data = await res.json();
       if (data.categories) setCategories(data.categories);
     } catch (e) { console.error(e); }
-  };
+  }, [api]);
+
+  useEffect(() => { fetchProducts(); fetchCategories(); }, [fetchProducts, fetchCategories]);
 
   /* ── Variant helpers ── */
   const addVariant = () => setVariants(v => [...v, BLANK_VARIANT()]);

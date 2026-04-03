@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, ReactNode } from "react";
+import { useState, useEffect, useCallback, ReactNode } from "react";
 import Image from "next/image";
 
 type Banner = {
@@ -17,18 +17,19 @@ export default function Banners() {
   const [desktopImage, setDesktopImage] = useState("");
   const [mobileImage, setMobileImage] = useState("");
   const [loading, setLoading] = useState(false);
+  const api = process.env.NEXT_PUBLIC_API_URL 
 
-  const fetchBanners = async () => {
+  const fetchBanners = useCallback(async () => {
     try {
-      const res = await fetch("http://localhost:5000/api/banner");
+      const res = await fetch(`${api}/banner`);
       const data = await res.json();
       if (data.banners) setBanners(data.banners);
     } catch (err) {
       console.error(err);
     }
-  };
+  }, [api]);
 
-  useEffect(() => { fetchBanners(); }, []);
+  useEffect(() => { fetchBanners(); }, [fetchBanners]);
 
   const toBase64 = (file: File): Promise<string> =>
     new Promise((resolve, reject) => {
