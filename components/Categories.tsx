@@ -204,7 +204,12 @@ export default function Categories() {
       
       const data = await res.json();
       if (data.success) {
-        fetchCategories();
+        // update local state directly — no extra fetch needed
+        if (editId) {
+          setCategories(prev => prev.map(c => c._id === editId ? { ...c, name: form.name } : c));
+        } else {
+          setCategories(prev => [...prev, data.category]);
+        }
         setForm({ name: "" });
         setEditId(null);
         setShowModal(false);
@@ -232,7 +237,7 @@ export default function Categories() {
 
       const data = await res.json();
       if (data.success) {
-        fetchCategories();
+        setCategories(prev => prev.filter(c => c._id !== id));
       } else {
         alert(data.error || "Failed to delete");
       }

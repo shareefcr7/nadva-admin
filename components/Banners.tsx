@@ -64,7 +64,8 @@ export default function Banners() {
         body: JSON.stringify({ desktopImage, mobileImage }),
       });
       if (res.ok) {
-        fetchBanners();
+        const data = await res.json();
+        setBanners(prev => [...prev, data.banner]);
         setDesktopImage("");
         setMobileImage("");
         setShowModal(false);
@@ -85,7 +86,7 @@ export default function Banners() {
       method: "DELETE",
       headers: { Authorization: token },
     });
-    if (res.ok) fetchBanners();
+    if (res.ok) setBanners(prev => prev.filter(b => b._id !== id));
   };
 
   return (

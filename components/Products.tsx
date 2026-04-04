@@ -177,7 +177,12 @@ export default function Products() {
       const data = await res.json();
       if (!res.ok) { setError(data.error || "Failed"); return; }
 
-      await fetchProducts();
+      // update local state directly — no extra fetch needed
+      if (editId) {
+        setProducts(prev => prev.map(p => p._id === editId ? data.product : p));
+      } else {
+        setProducts(prev => [...prev, data.product]);
+      }
       resetForm();
       setShowModal(false);
     } catch {
@@ -204,7 +209,7 @@ export default function Products() {
     const res = await fetch(`${api}/product/delete/${id}`, {
       method: "DELETE", headers: { Authorization: token() },
     });
-    if (res.ok) fetchProducts();
+    if (res.ok) setProducts(prev => prev.filter(p => p._id !== id));
   };
 
   const filtered = products.filter(p => p.name.toLowerCase().includes(search.toLowerCase()));
