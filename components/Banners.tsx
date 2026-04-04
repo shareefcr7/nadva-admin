@@ -58,7 +58,7 @@ export default function Banners() {
     setLoading(true);
     try {
       const token = localStorage.getItem("token") || "";
-      const res = await fetch("http://localhost:5000/api/banner/add", {
+      const res = await fetch(`${api}/banner/add`, {
         method: "POST",
         headers: { "Content-Type": "application/json", Authorization: token },
         body: JSON.stringify({ desktopImage, mobileImage }),
@@ -79,29 +79,9 @@ export default function Banners() {
     }
   };
 
-  // const toggle = async (id: string, current: boolean) => {
-  //   const token = localStorage.getItem("token") || "";
-  //   try {
-  //     const res = await fetch(`http://localhost:5000/api/banner/${id}`, {
-  //       method: "PUT",
-  //       headers: { "Content-Type": "application/json", Authorization: token },
-  //       body: JSON.stringify({ banner: { isActive: !current } }),
-  //     });
-  //     if (res.ok) {
-  //       fetchBanners();
-  //     } else {
-  //       const data = await res.json();
-  //       alert(data.error || "Failed to update banner");
-  //     }
-  //   } catch (err) {
-  //     console.error(err);
-  //     alert("Network error: Could not update banner");
-  //   }
-  // };
-
   const remove = async (id: string) => {
     const token = localStorage.getItem("token") || "";
-    const res = await fetch(`http://localhost:5000/api/banner/delete/${id}`, {
+    const res = await fetch(`${api}/banner/delete/${id}`, {
       method: "DELETE",
       headers: { Authorization: token },
     });

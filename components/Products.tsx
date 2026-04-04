@@ -165,8 +165,8 @@ export default function Products() {
 
     try {
       const url = editId
-        ? `http://localhost:5000/api/product/update/${editId}`
-        : "http://localhost:5000/api/product/add";
+        ? `${api}/product/update/${editId}`
+        : `${api}/product/add`;
       const method = editId ? "PUT" : "POST";
 
       const res = await fetch(url, {
@@ -201,7 +201,7 @@ export default function Products() {
   /* ── Delete ── */
   const remove = async (id: string) => {
     if (!confirm("Delete this product?")) return;
-    const res = await fetch(`http://localhost:5000/api/product/delete/${id}`, {
+    const res = await fetch(`${api}/product/delete/${id}`, {
       method: "DELETE", headers: { Authorization: token() },
     });
     if (res.ok) fetchProducts();

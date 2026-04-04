@@ -179,13 +179,13 @@ export default function Categories() {
       let res;
 
       if (editId) {
-        res = await fetch(`http://localhost:5000/api/category/${editId}`, {
+        res = await fetch(`${api}/category/${editId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json", "Authorization": token },
           body: JSON.stringify({ category: { name: form.name, description: "Updated from Admin" } }),
         });
       } else {
-        res = await fetch("http://localhost:5000/api/category/add", {
+        res = await fetch(`${api}/category/add`, {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": token },
           body: JSON.stringify({ name: form.name, description: "Added from Admin", isActive: true }),
@@ -219,7 +219,7 @@ export default function Categories() {
   const remove = async (id: string) => {
     try {
       const token = localStorage.getItem("token") || "";
-      const res = await fetch(`http://localhost:5000/api/category/delete/${id}`, {
+      const res = await fetch(`${api}/category/delete/${id}`, {
         method: "DELETE",
         headers: { "Authorization": token }
       });
