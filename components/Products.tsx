@@ -219,18 +219,18 @@ export default function Products() {
     <div style={{ width: "100%", maxWidth: "100%" }}>
       <style>{`
         .card{background:#13131a;border:1px solid #1e1e2e;border-radius:12px;}
-        .btn-primary{background:#7c3aed;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;}
-        .btn-primary:hover{background:#6d28d9;}
+        .btn-primary{background:#D4AF37;color:#070707;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;}
+        .btn-primary:hover{background:#b8932c;}
         .btn-primary:disabled{opacity:.5;cursor:not-allowed;}
         .btn-ghost{background:transparent;color:#555570;border:1px solid #1e1e2e;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;}
         .btn-ghost:hover{color:#ef4444;border-color:#ef444440;}
-        .btn-sm{background:#1e1e2e;color:#a78bfa;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;}
+        .btn-sm{background:#1e1e2e;color:#D4AF37;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;}
         .btn-sm:hover{background:#2a2a40;}
         .input{background:#0f0f13;border:1px solid #1e1e2e;border-radius:8px;color:#e8e8f0;padding:10px;width:100%;box-sizing:border-box;font-size:13px;outline:none;}
-        .input:focus{border-color:#7c3aed;}
+        .input:focus{border-color:#D4AF37;}
         .overlay{position:fixed;inset:0;background:#000000bb;display:flex;align-items:center;justify-content:center;z-index:100;}
         .variant-card{background:#0f0f13;border:1px solid #1e1e2e;border-radius:10px;padding:16px;position:relative;}
-        .variant-card.default{border-color:#7c3aed;}
+        .variant-card.default{border-color:#D4AF37;}
         .err{color:#ef4444;font-size:12px;margin-bottom:12px;background:#ef444415;padding:8px 12px;border-radius:6px;}
         .trow td{padding:14px 20px;border-bottom:1px solid #1a1a26;color:#e8e8f0;font-size:13px;}
         .color-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px;border:1px solid #ffffff30;}
@@ -247,7 +247,7 @@ export default function Products() {
         @media (max-width: 768px) {
           .trow { display: block; margin-bottom: 16px; border: 1px solid #1e1e2e; border-radius: 8px; padding: 12px; }
           .trow td { display: block; padding: 8px 0; border: none; margin-bottom: 8px; }
-          .trow td:before { content: attr(data-label); font-weight: 600; color: #a78bfa; display: block; margin-bottom: 4px; }
+          .trow td:before { content: attr(data-label); font-weight: 600; color: #D4AF37; display: block; margin-bottom: 4px; }
           .overlay { padding: 16px; }
           .modal-card { width: calc(100% - 32px) !important; max-height: 90vh !important; }
         }
@@ -300,14 +300,14 @@ export default function Products() {
                       </div>
                     </div>
                   </td>
-                  <td style={{ color: "#a78bfa", fontSize: 12 }}>{p.category?.name || "—"}</td>
+                  <td style={{ color: "#D4AF37", fontSize: 12 }}>{p.category?.name || "—"}</td>
                   <td>
                     <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                       {p.variants?.map(v => (
                         <span key={v._id} title={v.color} style={{
                           display: "inline-flex", alignItems: "center", gap: 4,
                           background: "#1e1e2e", borderRadius: 20, padding: "2px 8px", fontSize: 11, color: "#e8e8f0",
-                          border: v.isDefault ? "1px solid #7c3aed" : "1px solid transparent"
+                          border: v.isDefault ? "1px solid #D4AF37" : "1px solid transparent"
                         }}>
                           <span className="color-dot" style={{ background: v.color }} />
                           {v.color}
@@ -398,7 +398,7 @@ export default function Products() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <label style={{ fontSize: 12, fontWeight: 600, color: "#a78bfa" }}>{label}</label>
+      <label style={{ fontSize: 12, fontWeight: 600, color: "#D4AF37" }}>{label}</label>
       {children}
     </div>
   );
@@ -443,7 +443,7 @@ function VariantCard({
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-        <label style={{ fontSize: 12, color: "#a78bfa", display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+        <label style={{ fontSize: 12, color: "#D4AF37", display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
           <input type="checkbox" checked={variant.isDefault} onChange={() => onSetDefault(index)} />
           Default variant
         </label>
@@ -457,7 +457,7 @@ function VariantCard({
             <button className="img-remove" onClick={() => onRemoveImage(index, ii)}>×</button>
           </div>
         ))}
-        <label style={{ cursor: "pointer", background: "#1e1e2e", borderRadius: 6, padding: "6px 10px", fontSize: 11, color: "#a78bfa" }}>
+        <label style={{ cursor: "pointer", background: "#1e1e2e", borderRadius: 6, padding: "6px 10px", fontSize: 11, color: "#D4AF37" }}>
           + Image
           <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => e.target.files && onAddImages(index, e.target.files)} />
         </label>
@@ -466,7 +466,7 @@ function VariantCard({
       {/* Sizes */}
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "#a78bfa" }}>Sizes</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#D4AF37" }}>Sizes</span>
           <button className="btn-sm" onClick={() => onAddSize(index)}>+ Add Size</button>
         </div>
         {variant.sizes.length === 0 && (

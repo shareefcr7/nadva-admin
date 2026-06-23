@@ -141,7 +141,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }: SidebarProp
         }
 
         .sidebar-logo-accent {
-          color: #a78bfa;
+          color: #D4AF37;
         }
 
         .sidebar-subtext {
@@ -190,18 +190,18 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }: SidebarProp
         .nav-item:hover {
           color: #c4c4e0;
           background: #1a1a26;
-          border-left-color: #7c3aed;
+          border-left-color: #D4AF37;
         }
 
         .nav-item.active {
-          color: #a78bfa;
-          background: linear-gradient(90deg, rgba(167, 139, 250, 0.15) 0%, transparent 100%);
-          border-left-color: #a78bfa;
+          color: #D4AF37;
+          background: linear-gradient(90deg, rgba(212, 175, 55, 0.15) 0%, transparent 100%);
+          border-left-color: #D4AF37;
           font-weight: 600;
         }
 
         .nav-item.active svg {
-          color: #a78bfa;
+          color: #D4AF37;
         }
 
         .nav-item svg {
@@ -228,7 +228,7 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }: SidebarProp
           width: 32px;
           height: 32px;
           border-radius: 50%;
-          background: linear-gradient(135deg, #7c3aed, #a78bfa);
+          background: linear-gradient(135deg, #b8932c, #D4AF37);
           display: flex;
           align-items: center;
           justify-content: center;

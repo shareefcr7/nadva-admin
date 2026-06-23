@@ -129,8 +129,8 @@ export default function LoginPage() {
             disabled={loading}
             style={{
               padding: "14px",
-              background: "#7c3aed",
-              color: "#fff",
+              background: "#D4AF37",
+              color: "#070707",
               border: "none",
               borderRadius: "8px",
               fontSize: "14px",
