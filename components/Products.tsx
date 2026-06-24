@@ -41,6 +41,74 @@ const toBase64 = (file: File): Promise<string> =>
 
 const token = () => localStorage.getItem("token") || "";
 
+const colorMap: Record<string, string> = {
+  "sage green": "#8a9a86",
+  "sage": "#8a9a86",
+  "coffee brown": "#4b3621",
+  "coffee": "#4b3621",
+  "mauve pink": "#e0b0ff",
+  "mauve": "#e0b0ff",
+  "olive beige": "#a89f91",
+  "olive": "#808000",
+  "beige": "#f5f5dc",
+  "navy blue": "#000080",
+  "navy": "#000080",
+  "sky blue": "#87ceeb",
+  "mustard yellow": "#ffdb58",
+  "mustard": "#ffdb58",
+  "dusty pink": "#dcaebb",
+  "dusty rose": "#cca0ac",
+  "wine red": "#722f37",
+  "wine": "#722f37",
+  "burgundy": "#800020",
+  "charcoal grey": "#36454f",
+  "charcoal gray": "#36454f",
+  "charcoal": "#36454f",
+  "cream": "#fffdd0",
+  "khaki": "#c3b091",
+  "camel": "#c19a6b",
+  "rust": "#b7410e",
+  "terracotta": "#e2725b",
+  "teal": "#008080",
+  "lavender": "#e6e6fa",
+  "lilac": "#c8a2c8",
+  "peach": "#ffdab9",
+  "coral": "#ff7f50",
+  "mint green": "#98ff98",
+  "mint": "#98ff98",
+  "apricot": "#fbceb1",
+  "emerald green": "#50c878",
+  "emerald": "#50c878",
+  "forest green": "#228b22",
+  "olive green": "#bab86c",
+  "maroon": "#800000",
+  "bronze": "#cd7f32",
+  "copper": "#b87333",
+  "tan": "#d2b48c",
+};
+
+const getValidColor = (colorName: string): string => {
+  if (!colorName) return "#ccc";
+  const clean = colorName.trim().toLowerCase().replace(/[-_]/g, " ").replace(/\s+/g, " ");
+  if (/^#([0-9a-f]{3}){1,2}$/i.test(clean)) return colorName;
+  if (colorMap[clean]) return colorMap[clean];
+  if (clean.includes("red")) return "#ff0000";
+  if (clean.includes("blue")) return "#0000ff";
+  if (clean.includes("green")) return "#008000";
+  if (clean.includes("yellow")) return "#ffff00";
+  if (clean.includes("pink")) return "#ffc0cb";
+  if (clean.includes("brown")) return "#a52a2a";
+  if (clean.includes("orange")) return "#ffa500";
+  if (clean.includes("purple")) return "#800080";
+  if (clean.includes("grey") || clean.includes("gray")) return "#808080";
+  if (clean.includes("black")) return "#000000";
+  if (clean.includes("white")) return "#ffffff";
+  if (clean.includes("gold")) return "#ffd700";
+  if (clean.includes("silver")) return "#c0c0c0";
+  if (clean.includes("beige")) return "#f5f5dc";
+  return colorName;
+};
+
 /* ─── Main Component ─────────────────────────────────── */
 export default function Products() {
   const [products, setProducts]     = useState<Product[]>([]);
@@ -309,7 +377,7 @@ export default function Products() {
                           background: "#1e1e2e", borderRadius: 20, padding: "2px 8px", fontSize: 11, color: "#e8e8f0",
                           border: v.isDefault ? "1px solid #D4AF37" : "1px solid transparent"
                         }}>
-                          <span className="color-dot" style={{ background: v.color }} />
+                          <span className="color-dot" style={{ background: getValidColor(v.color) }} />
                           {v.color}
                         </span>
                       ))}
