@@ -28,7 +28,7 @@ export default function AdminLayout({
   }, []);
 
   if (authorized === null || authorized === false) {
-    return <div style={{ background: "#0f0f13", height: "100vh" }} />;
+    return <div style={{ background: "#f3f4f6", height: "100vh" }} />;
   }
 
   return (
@@ -36,7 +36,7 @@ export default function AdminLayout({
       style={{
         display: "flex",
         height: "100vh",
-        background: "#0f0f13",
+        background: "#f3f4f6",
         overflow: "hidden",
         flexDirection: "row",
         position: "relative",
@@ -115,7 +115,7 @@ export default function AdminLayout({
           flex: 1,
           overflowY: "auto",
           padding: "24px 32px",
-          color: "#e8e8f0",
+          color: "#111827",
           display: "flex",
           flexDirection: "column",
           position: "relative",
@@ -130,9 +130,9 @@ export default function AdminLayout({
             position: "fixed",
             top: 12,
             left: 12,
-            background: "#1a1a26",
-            border: "1px solid #1e1e2e",
-            color: "#e8e8f0",
+            background: "#ffffff",
+            border: "1px solid #e2e8f0",
+            color: "#1B5E20",
             fontSize: 24,
             cursor: "pointer",
             zIndex: 1001,
@@ -154,7 +154,7 @@ export default function AdminLayout({
               display: block !important;
             }
             .menu-toggle:active {
-              background: #2a2a3a;
+              background: #f8f9fa;
             }
           }
         `}</style>

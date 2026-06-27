@@ -92,27 +92,27 @@ export default function Banners() {
   return (
     <div>
       <style>{`
-        .card { background: #13131a; border: 1px solid #1e1e2e; border-radius: 12px; }
-        .btn-primary { background: #7c3aed; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
-        .btn-primary:hover { background: #6d28d9; }
+        .card { background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05); }
+        .btn-primary { background: #FF8C00; color: #fff; border: none; border-radius: 8px; padding: 10px 20px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; }
+        .btn-primary:hover { background: #E67E00; }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-ghost { background: transparent; color: #555570; border: 1px solid #1e1e2e; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; }
-        .btn-ghost:hover { color: #ef4444; border-color: #ef444440; }
-        .overlay { position: fixed; inset: 0; background: #000000aa; display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; overflow-y: auto; }
+        .btn-ghost { background: transparent; color: #1B5E20; border: 1px solid #e2e8f0; border-radius: 8px; padding: 6px 12px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; }
+        .btn-ghost:hover { color: #FF8C00; border-color: #FF8C00; background: #fff5f0; }
+        .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); display: flex; align-items: center; justify-content: center; z-index: 100; padding: 16px; overflow-y: auto; }
         .toggle { position: relative; width: 38px; height: 22px; }
         .toggle input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider { position: absolute; inset: 0; background: #1e1e2e; border-radius: 22px; cursor: pointer; transition: 0.2s; }
-        .toggle-slider:before { content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #555570; border-radius: 50%; transition: 0.2s; }
-        input:checked + .toggle-slider { background: #7c3aed; }
+        .toggle-slider { position: absolute; inset: 0; background: #e2e8f0; border-radius: 22px; cursor: pointer; transition: 0.2s; }
+        .toggle-slider:before { content: ''; position: absolute; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #9ca3af; border-radius: 50%; transition: 0.2s; }
+        input:checked + .toggle-slider { background: #FF8C00; }
         input:checked + .toggle-slider:before { transform: translateX(16px); background: #fff; }
       
-        // .upload-box:hover { border-color: #7c3aed; }
+        // .upload-box:hover { border-color: #FF8C00; }
         .upload-input { display: none; }
         .banner-card-container { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
         .banner-preview-wrapper { display: flex; gap: 12px; align-items: center; flex: 1; min-width: 0; }
         .banner-preview-item { display: flex; flex-direction: column; gap: 4px; }
-        .banner-preview-label { font-size: 10px; font-weight: 600; color: #44445a; text-transform: uppercase; letter-spacing: 0.05em; }
-        .banner-preview-image { background: #0a0a0f; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; }
+        .banner-preview-label { font-size: 10px; font-weight: 600; color: #4b5563; text-transform: uppercase; letter-spacing: 0.05em; }
+        .banner-preview-image { background: #f3f4f6; border-radius: 8px; overflow: hidden; display: flex; align-items: center; justify-content: center; border: 1px solid #e2e8f0; }
         
         /* Mobile - stack layout */
         @media (max-width: 768px) {
@@ -136,8 +136,8 @@ export default function Banners() {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12, width: "100%" }}>
         <div>
-          <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(20px, 5vw, 26px)", fontWeight: 800, color: "#e8e8f0", margin: 0 }}>Banners</h1>
-          <p style={{ fontSize: 13, color: "#44445a", margin: "4px 0 0 0" }}>{banners.filter(b => b.isActive).length} active</p>
+          <h1 style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(20px, 5vw, 26px)", fontWeight: 800, color: "#1B5E20", margin: 0 }}>Banners</h1>
+          <p style={{ fontSize: 13, color: "#4b5563", margin: "4px 0 0 0" }}>{banners.filter(b => b.isActive).length} active</p>
         </div>
         <button className="btn-primary" onClick={() => setShowModal(true)}>+ Add Banner</button>
       </div>
@@ -178,7 +178,7 @@ export default function Banners() {
       {showModal && (
         <div className="overlay" onClick={() => setShowModal(false)}>
           <div className="card" style={{ width: "clamp(300px, 90vw, 500px)", padding: "clamp(16px, 5vw, 32px)", maxHeight: "90vh", overflowY: "auto" }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(16px, 4vw, 20px)", fontWeight: 700, color: "#e8e8f0", marginBottom: 20 }}>
+            <div style={{ fontFamily: "'Syne', sans-serif", fontSize: "clamp(16px, 4vw, 20px)", fontWeight: 700, color: "#1B5E20", marginBottom: 20 }}>
               New Banner
             </div>
 
@@ -194,14 +194,14 @@ export default function Banners() {
                         height={150}
                         style={{ width: "100%", height: "100%", borderRadius: 6, objectFit: "cover" }}
                       />
-                      <div style={{ position: "absolute", top: 8, right: 8, background: "#7c3aed", color: "#fff", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
+                      <div style={{ position: "absolute", top: 8, right: 8, background: "#FF8C00", color: "#fff", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
                         Selected
                       </div>
                     </div>
                   ) : (
                     <div style={{ padding: "30px 0" }}>
-                      <div style={{ fontSize: 13, color: "#555570", fontWeight: 500 }}>📁 Click to upload desktop image</div>
-                      <div style={{ fontSize: 11, color: "#44445a", marginTop: 6 }}>Recommended: 1920x400px</div>
+                      <div style={{ fontSize: 13, color: "#4b5563", fontWeight: 500 }}>📁 Click to upload desktop image</div>
+                      <div style={{ fontSize: 11, color: "#6b7280", marginTop: 6 }}>Recommended: 1920x400px</div>
                     </div>
                   )}
                   <input className="upload-input" type="file" accept="image/*" onChange={(e) => handleFile(e, "desktop")} />
@@ -219,14 +219,14 @@ export default function Banners() {
                         height={150}
                         style={{ width: "100%", height: "100%", borderRadius: 6, objectFit: "cover" }}
                       />
-                      <div style={{ position: "absolute", top: 8, right: 8, background: "#7c3aed", color: "#fff", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
+                      <div style={{ position: "absolute", top: 8, right: 8, background: "#FF8C00", color: "#fff", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
                         Selected
                       </div>
                     </div>
                   ) : (
                     <div style={{ padding: "30px 0" }}>
-                      <div style={{ fontSize: 13, color: "#555570", fontWeight: 500 }}>📱 Click to upload mobile image</div>
-                      <div style={{ fontSize: 11, color: "#44445a", marginTop: 6 }}>Recommended: 540x600px</div>
+                      <div style={{ fontSize: 13, color: "#4b5563", fontWeight: 500 }}>📱 Click to upload mobile image</div>
+                      <div style={{ fontSize: 11, color: "#6b7280", marginTop: 6 }}>Recommended: 540x600px</div>
                     </div>
                   )}
                   <input className="upload-input" type="file" accept="image/*" onChange={(e) => handleFile(e, "mobile")} />
@@ -257,7 +257,7 @@ export default function Banners() {
 function Field({ label, children }: FieldProps) {
   return (
     <div>
-      <div style={{ fontSize: 11, fontWeight: 600, color: "#555570", marginBottom: 6 }}>{label}</div>
+      <div style={{ fontSize: 11, fontWeight: 600, color: "#4b5563", marginBottom: 6 }}>{label}</div>
       {children}
     </div>
   );

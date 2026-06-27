@@ -286,23 +286,23 @@ export default function Products() {
   return (
     <div style={{ width: "100%", maxWidth: "100%" }}>
       <style>{`
-        .card{background:#13131a;border:1px solid #1e1e2e;border-radius:12px;}
-        .btn-primary{background:#D4AF37;color:#070707;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;}
-        .btn-primary:hover{background:#b8932c;}
+        .card{background:#ffffff;border:1px solid #e2e8f0;border-radius:12px;box-shadow:0 4px 6px -1px rgba(0,0,0,0.05);}
+        .btn-primary{background:#FF8C00;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;}
+        .btn-primary:hover{background:#E67E00;}
         .btn-primary:disabled{opacity:.5;cursor:not-allowed;}
-        .btn-ghost{background:transparent;color:#555570;border:1px solid #1e1e2e;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;}
-        .btn-ghost:hover{color:#ef4444;border-color:#ef444440;}
-        .btn-sm{background:#1e1e2e;color:#D4AF37;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;}
-        .btn-sm:hover{background:#2a2a40;}
-        .input{background:#0f0f13;border:1px solid #1e1e2e;border-radius:8px;color:#e8e8f0;padding:10px;width:100%;box-sizing:border-box;font-size:13px;outline:none;}
-        .input:focus{border-color:#D4AF37;}
-        .overlay{position:fixed;inset:0;background:#000000bb;display:flex;align-items:center;justify-content:center;z-index:100;}
-        .variant-card{background:#0f0f13;border:1px solid #1e1e2e;border-radius:10px;padding:16px;position:relative;}
-        .variant-card.default{border-color:#D4AF37;}
+        .btn-ghost{background:transparent;color:#1B5E20;border:1px solid #e2e8f0;border-radius:8px;padding:6px 12px;font-size:12px;cursor:pointer;}
+        .btn-ghost:hover{color:#FF8C00;border-color:#FF8C00;background:#fff5f0;}
+        .btn-sm{background:#f3f4f6;color:#1B5E20;border:none;border-radius:6px;padding:4px 10px;font-size:11px;cursor:pointer;border:1px solid #e2e8f0;}
+        .btn-sm:hover{background:#e5e7eb;}
+        .input{background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;color:#111827;padding:10px;width:100%;box-sizing:border-box;font-size:13px;outline:none;}
+        .input:focus{border-color:#FF8C00;}
+        .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;}
+        .variant-card{background:#f8f9fa;border:1px solid #e2e8f0;border-radius:10px;padding:16px;position:relative;}
+        .variant-card.default{border-color:#FF8C00;}
         .err{color:#ef4444;font-size:12px;margin-bottom:12px;background:#ef444415;padding:8px 12px;border-radius:6px;}
-        .trow td{padding:14px 20px;border-bottom:1px solid #1a1a26;color:#e8e8f0;font-size:13px;}
-        .color-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px;border:1px solid #ffffff30;}
-        .img-thumb{width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #1e1e2e;}
+        .trow td{padding:14px 20px;border-bottom:1px solid #e2e8f0;color:#111827;font-size:13px;}
+        .color-dot{width:12px;height:12px;border-radius:50%;display:inline-block;margin-right:6px;border:1px solid #00000030;}
+        .img-thumb{width:40px;height:40px;object-fit:cover;border-radius:6px;border:1px solid #e2e8f0;}
         .img-remove{position:absolute;top:-6px;right:-6px;background:#ef4444;color:#fff;border:none;border-radius:50%;width:18px;height:18px;font-size:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
         .modal-card{scrollbar-width:none;-ms-overflow-style:none;}
         .modal-card::-webkit-scrollbar{display:none;}
@@ -313,9 +313,9 @@ export default function Products() {
           .trow td { padding: 10px 12px; font-size: 12px; }
         }
         @media (max-width: 768px) {
-          .trow { display: block; margin-bottom: 16px; border: 1px solid #1e1e2e; border-radius: 8px; padding: 12px; }
+          .trow { display: block; margin-bottom: 16px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 12px; }
           .trow td { display: block; padding: 8px 0; border: none; margin-bottom: 8px; }
-          .trow td:before { content: attr(data-label); font-weight: 600; color: #D4AF37; display: block; margin-bottom: 4px; }
+          .trow td:before { content: attr(data-label); font-weight: 600; color: #FF8C00; display: block; margin-bottom: 4px; }
           .overlay { padding: 16px; }
           .modal-card { width: calc(100% - 32px) !important; max-height: 90vh !important; }
         }
@@ -329,8 +329,8 @@ export default function Products() {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12, width: "100%" }}>
         <div>
-          <h1 style={{ color: "#e8e8f0", fontFamily: "'Syne',sans-serif", fontSize: "clamp(20px, 5vw, 26px)", fontWeight: 800, margin: 0 }}>Products</h1>
-          <p style={{ color: "#44445a", fontSize: 13, margin: "4px 0 0 0" }}>{products.length} total</p>
+          <h1 style={{ color: "#1B5E20", fontFamily: "'Syne',sans-serif", fontSize: "clamp(20px, 5vw, 26px)", fontWeight: 800, margin: 0 }}>Products</h1>
+          <p style={{ color: "#4b5563", fontSize: 13, margin: "4px 0 0 0" }}>{products.length} total</p>
         </div>
         <button className="btn-primary" onClick={() => { resetForm(); setShowModal(true); }}>+ Add Product</button>
       </div>
@@ -342,15 +342,15 @@ export default function Products() {
       <div className="card" style={{ overflowX: "auto", overflowY: "hidden", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
           <thead>
-            <tr style={{ borderBottom: "1px solid #1e1e2e" }}>
+            <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
               {["Product", "Category", "Variants", "Actions"].map(h => (
-                <td key={h} style={{ padding: "12px 20px", fontSize: 11, color: "#555570", fontWeight: 600, textTransform: "uppercase" }}>{h}</td>
+                <td key={h} style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>{h}</td>
               ))}
             </tr>
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "#44445a", fontSize: 13 }}>No products yet</td></tr>
+              <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "#4b5563", fontSize: 13 }}>No products yet</td></tr>
             )}
             {filtered.map(p => {
               const def = p.variants?.find(v => v.isDefault) || p.variants?.[0];
@@ -360,22 +360,22 @@ export default function Products() {
                     <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
                       {def?.images?.[0]
                         ? <Image src={def.images[0]} className="img-thumb" alt={p.name} width={40} height={40} style={{ objectFit: "cover" }} />
-                        : <div style={{ width: 40, height: 40, borderRadius: 6, background: "#1e1e2e", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📦</div>
+                        : <div style={{ width: 40, height: 40, borderRadius: 6, background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 18 }}>📦</div>
                       }
                       <div>
                         <div style={{ fontWeight: 600 }}>{p.name}</div>
-                        {def && <div style={{ fontSize: 11, color: "#555570" }}>${Number(def.price).toFixed(2)}</div>}
+                        {def && <div style={{ fontSize: 11, color: "#4b5563" }}>${Number(def.price).toFixed(2)}</div>}
                       </div>
                     </div>
                   </td>
-                  <td style={{ color: "#D4AF37", fontSize: 12 }}>{p.category?.name || "—"}</td>
+                  <td style={{ color: "#FF8C00", fontSize: 12 }}>{p.category?.name || "—"}</td>
                   <td>
                     <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                       {p.variants?.map(v => (
                         <span key={v._id} title={v.color} style={{
                           display: "inline-flex", alignItems: "center", gap: 4,
-                          background: "#1e1e2e", borderRadius: 20, padding: "2px 8px", fontSize: 11, color: "#e8e8f0",
-                          border: v.isDefault ? "1px solid #D4AF37" : "1px solid transparent"
+                          background: "#f3f4f6", borderRadius: 20, padding: "2px 8px", fontSize: 11, color: "#111827",
+                          border: v.isDefault ? "1px solid #FF8C00" : "1px solid transparent"
                         }}>
                           <span className="color-dot" style={{ background: getValidColor(v.color) }} />
                           {v.color}
@@ -400,7 +400,7 @@ export default function Products() {
       {showModal && (
         <div className="overlay" onClick={() => { setShowModal(false); resetForm(); }}>
           <div className="card modal-card" style={{ width: "clamp(300px, 90vw, 620px)", padding: "clamp(16px, 4vw, 28px)", maxHeight: "90vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
-            <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, color: "#e8e8f0", marginBottom: 20 }}>
+            <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, color: "#1B5E20", marginBottom: 20 }}>
               {editId ? "Edit Product" : "New Product"}
             </div>
 
@@ -424,8 +424,8 @@ export default function Products() {
 
             {/* Variants */}
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#e8e8f0" }}>
-                Variants <span style={{ color: "#555570", fontWeight: 400 }}>({variants.length})</span>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
+                Variants <span style={{ color: "#4b5563", fontWeight: 400 }}>({variants.length})</span>
               </div>
               <button className="btn-sm" onClick={addVariant}>+ Add Variant</button>
             </div>
@@ -466,7 +466,7 @@ export default function Products() {
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-      <label style={{ fontSize: 12, fontWeight: 600, color: "#D4AF37" }}>{label}</label>
+      <label style={{ fontSize: 12, fontWeight: 600, color: "#FF8C00" }}>{label}</label>
       {children}
     </div>
   );
@@ -511,7 +511,7 @@ function VariantCard({
       </div>
 
       <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
-        <label style={{ fontSize: 12, color: "#D4AF37", display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
+        <label style={{ fontSize: 12, color: "#FF8C00", display: "flex", alignItems: "center", gap: 6, cursor: "pointer" }}>
           <input type="checkbox" checked={variant.isDefault} onChange={() => onSetDefault(index)} />
           Default variant
         </label>
@@ -525,7 +525,7 @@ function VariantCard({
             <button className="img-remove" onClick={() => onRemoveImage(index, ii)}>×</button>
           </div>
         ))}
-        <label style={{ cursor: "pointer", background: "#1e1e2e", borderRadius: 6, padding: "6px 10px", fontSize: 11, color: "#D4AF37" }}>
+        <label style={{ cursor: "pointer", background: "#f3f4f6", borderRadius: 6, padding: "6px 10px", fontSize: 11, color: "#1B5E20" }}>
           + Image
           <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => e.target.files && onAddImages(index, e.target.files)} />
         </label>
@@ -534,11 +534,11 @@ function VariantCard({
       {/* Sizes */}
       <div>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "#D4AF37" }}>Sizes</span>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#FF8C00" }}>Sizes</span>
           <button className="btn-sm" onClick={() => onAddSize(index)}>+ Add Size</button>
         </div>
         {variant.sizes.length === 0 && (
-          <p style={{ fontSize: 11, color: "#44445a", margin: 0 }}>No sizes added</p>
+          <p style={{ fontSize: 11, color: "#4b5563", margin: 0 }}>No sizes added</p>
         )}
         <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
           {variant.sizes.map((s, si) => (

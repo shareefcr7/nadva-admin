@@ -13,8 +13,12 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Admin Panel",
-  description: "Admin control center for managing products, categories, and banners",
+  title: "NADAV RESORTS & EVENTS - Admin Panel",
+  description: "Admin control center for managing resorts, events, and bookings",
+  icons: {
+    icon: "/nadav-logo.ico",
+    shortcut: "/nadav-logo.ico",
+  },
 };
 
 export const viewport: Viewport = {
