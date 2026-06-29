@@ -84,7 +84,7 @@ export default function LoginPage() {
           justifyContent: "center",
           overflow: "hidden"
         }}>
-          <img src="/images/logo.jpg" alt="VARUNA" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+          <img src="/images/logo.jpg" alt="Nadav Resorts & Events" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
         </div>
         <div>
           <h1 style={{
@@ -94,7 +94,7 @@ export default function LoginPage() {
             fontWeight: 800,
             fontFamily: "'Syne', sans-serif"
           }}>
-            VARUNA
+            Nadav Resorts & Events
           </h1>
           <p style={{
             color: "#ffffff",
@@ -266,7 +266,7 @@ export default function LoginPage() {
               fontSize: "12px",
               margin: 0
             }}>
-              © 2025 VARUNA Resorts & Events
+              © 2025 Nadav Resorts & Events
             </p>
           </div>
         </div>

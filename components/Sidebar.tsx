@@ -356,10 +356,10 @@ export default function Sidebar({ isSidebarOpen, setIsSidebarOpen }: SidebarProp
         {/* Logo Section */}
         <div className="sidebar-header">
           <div className="sidebar-logo-icon">
-            <img src="/images/logo.jpg" alt="VARUNA" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
+            <img src="/images/logo.jpg" alt="© 2025 Nadav Resorts & Events" style={{ width: '100%', height: '100%', objectFit: 'contain' }} />
           </div>
           <div>
-            <h1 className="sidebar-logo">VARUNA</h1>
+            <h1 className="sidebar-logo">Nadav Resorts & Events</h1>
             <p className="sidebar-subtext">ADMIN</p>
           </div>
         </div>

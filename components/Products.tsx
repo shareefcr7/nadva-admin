@@ -343,9 +343,11 @@ export default function Products() {
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-              {["Product", "Category", "Variants", "Actions"].map(h => (
-                <td key={h} style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>{h}</td>
-              ))}
+              <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Product</td>
+              <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Description</td>
+              <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Category</td>
+              <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Variants</td>
+              <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Actions</td>
             </tr>
           </thead>
           <tbody>
