@@ -3,16 +3,18 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 /* ─── Types ─────────────────────────────────────────── */
-type SizeEntry = { size: string; stock: string };
-
 type Variant = {
   _id?: string;
-  color: string;
+  name: string;
   price: string;
-  stock: string;
-  sizes: SizeEntry[];
+  description?: string;
   images: string[];       // base64 previews / stored URLs
   isDefault: boolean;
+  duration?: string;
+  capacity?: string;
+  maxGuests?: string;
+  roomType?: string;
+  serviceType?: string;
 };
 
 type Product = {
@@ -22,12 +24,33 @@ type Product = {
   category?: { _id: string; name: string } | null;
   variants: Variant[];
   isActive: boolean;
+  amenities?: string[];
 };
 
 type Category = { _id: string; name: string };
 
+const AVAILABLE_AMENITIES = [
+  "AC",
+  "WiFi",
+  "Parking",
+  "Swimming Pool",
+  "Dining",
+  "Stage",
+  "Generator",
+  "Projector"
+];
+
 const BLANK_VARIANT = (): Variant => ({
-  color: "", price: "", stock: "0", sizes: [], images: [], isDefault: false,
+  name: "",
+  price: "",
+  description: "",
+  images: [],
+  isDefault: false,
+  duration: "",
+  capacity: "",
+  maxGuests: "",
+  roomType: "",
+  serviceType: ""
 });
 
 /* ─── Helpers ────────────────────────────────────────── */
@@ -123,6 +146,7 @@ export default function Products() {
   const [name, setName]             = useState("");
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
+  const [amenities, setAmenities]   = useState<string[]>([]);
   const [variants, setVariants]     = useState<Variant[]>([{ ...BLANK_VARIANT(), isDefault: true }]);
   const api = process.env.NEXT_PUBLIC_API_URL;
 
@@ -176,39 +200,21 @@ export default function Products() {
     ));
   };
 
-  const addSize = (vi: number) => {
-    setVariants(prev => prev.map((v, idx) =>
-      idx === vi ? { ...v, sizes: [...v.sizes, { size: "", stock: "0" }] } : v
-    ));
-  };
-
-  const updateSize = (vi: number, si: number, field: keyof SizeEntry, value: string) => {
-    setVariants(prev => prev.map((v, idx) =>
-      idx === vi ? { ...v, sizes: v.sizes.map((s, i) => i === si ? { ...s, [field]: value } : s) } : v
-    ));
-  };
-
-  const removeSize = (vi: number, si: number) => {
-    setVariants(prev => prev.map((v, idx) =>
-      idx === vi ? { ...v, sizes: v.sizes.filter((_, i) => i !== si) } : v
-    ));
-  };
-
   /* ── Reset ── */
   const resetForm = () => {
-    setName(""); setDescription(""); setCategoryId("");
+    setName(""); setDescription(""); setCategoryId(""); setAmenities([]);
     setVariants([{ ...BLANK_VARIANT(), isDefault: true }]);
     setEditId(null); setError("");
   };
 
   /* ── Validate ── */
   const validate = (): string | null => {
-    if (!name.trim()) return "Product name is required.";
+    if (!name.trim()) return "Service name is required.";
     if (!description.trim()) return "Description is required.";
     if (variants.length === 0) return "At least one variant is required.";
-    const colors = variants.map(v => v.color.trim().toLowerCase());
-    if (colors.some(c => !c)) return "Every variant must have a color.";
-    if (new Set(colors).size !== colors.length) return "Each variant color must be unique.";
+    const names = variants.map(v => v.name.trim().toLowerCase());
+    if (names.some(n => !n)) return "Every variant must have a name.";
+    if (new Set(names).size !== names.length) return "Each variant name must be unique.";
     for (const v of variants) {
       if (!v.price || Number(v.price) <= 0) return "Every variant price must be > 0.";
     }
@@ -224,10 +230,10 @@ export default function Products() {
     const payload = {
       name, description,
       category: categoryId || undefined,
+      amenities,
       variants: variants.map(v => ({
         ...v,
         price: Number(v.price),
-        stock: Number(v.stock),
       })),
     };
 
@@ -266,7 +272,18 @@ export default function Products() {
     setName(p.name);
     setDescription(p.description);
     setCategoryId(p.category?._id || "");
-    setVariants(p.variants.map(v => ({ ...v, price: String(v.price), stock: String(v.stock) })));
+    setAmenities(p.amenities || []);
+    setVariants(p.variants.map(v => ({
+      ...v,
+      name: v.name || (v as any).color || "", // fallback copy of color to name for backward compatibility
+      price: String(v.price),
+      description: v.description || "",
+      duration: v.duration || "",
+      capacity: v.capacity || "",
+      maxGuests: v.maxGuests || "",
+      roomType: v.roomType || "",
+      serviceType: v.serviceType || ""
+    })));
     setError("");
     setShowModal(true);
   };
@@ -352,7 +369,7 @@ export default function Products() {
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={4} style={{ padding: 24, textAlign: "center", color: "#4b5563", fontSize: 13 }}>No products yet</td></tr>
+              <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#4b5563", fontSize: 13 }}>No products yet</td></tr>
             )}
             {filtered.map(p => {
               const def = p.variants?.find(v => v.isDefault) || p.variants?.[0];
@@ -370,17 +387,19 @@ export default function Products() {
                       </div>
                     </div>
                   </td>
+                  <td style={{ color: "#4b5563", fontSize: 12, maxWidth: "200px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>
+                    {p.description || "—"}
+                  </td>
                   <td style={{ color: "#FF8C00", fontSize: 12 }}>{p.category?.name || "—"}</td>
                   <td>
                     <div style={{ display: "flex", gap: 4, flexWrap: "wrap" }}>
                       {p.variants?.map(v => (
-                        <span key={v._id} title={v.color} style={{
+                        <span key={v._id} title={v.name || (v as any).color} style={{
                           display: "inline-flex", alignItems: "center", gap: 4,
                           background: "#f3f4f6", borderRadius: 20, padding: "2px 8px", fontSize: 11, color: "#111827",
                           border: v.isDefault ? "1px solid #FF8C00" : "1px solid transparent"
                         }}>
-                          <span className="color-dot" style={{ background: getValidColor(v.color) }} />
-                          {v.color}
+                          {v.name || (v as any).color}
                         </span>
                       ))}
                     </div>
@@ -410,17 +429,51 @@ export default function Products() {
 
             {/* Base fields */}
             <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 24 }}>
-              <Field label="Product Name">
-                <input className="input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Floral Dress" />
+              <Field label="Service Name">
+                <input className="input" value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Luxury A/C Room" />
               </Field>
               <Field label="Description">
-                <textarea className="input" value={description} rows={3} onChange={e => setDescription(e.target.value)} placeholder="Product description" style={{ resize: "vertical" }} />
+                <textarea className="input" value={description} rows={3} onChange={e => setDescription(e.target.value)} placeholder="Service description" style={{ resize: "vertical" }} />
               </Field>
               <Field label="Category">
                 <select className="input" value={categoryId} onChange={e => setCategoryId(e.target.value)}>
                   <option value="">— Select category —</option>
                   {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                 </select>
+              </Field>
+              <Field label="Amenities">
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
+                  {AVAILABLE_AMENITIES.map(amenity => {
+                    const selected = amenities.includes(amenity);
+                    return (
+                      <button
+                        key={amenity}
+                        type="button"
+                        onClick={() => {
+                          if (selected) {
+                            setAmenities(amenities.filter(a => a !== amenity));
+                          } else {
+                            setAmenities([...amenities, amenity]);
+                          }
+                        }}
+                        style={{
+                          background: selected ? "#1B5E20" : "#fff",
+                          color: selected ? "#fff" : "#1B5E20",
+                          border: "1px solid",
+                          borderColor: selected ? "#1B5E20" : "#e2e8f0",
+                          borderRadius: 20,
+                          padding: "6px 14px",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        {amenity}
+                      </button>
+                    );
+                  })}
+                </div>
               </Field>
             </div>
 
@@ -444,9 +497,6 @@ export default function Products() {
                   onSetDefault={setDefault}
                   onAddImages={addImages}
                   onRemoveImage={removeImage}
-                  onAddSize={addSize}
-                  onUpdateSize={updateSize}
-                  onRemoveSize={removeSize}
                 />
               ))}
             </div>
@@ -477,7 +527,6 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 /* ─── VariantCard ────────────────────────────────────── */
 function VariantCard({
   variant, index, total, onUpdate, onRemove, onSetDefault, onAddImages, onRemoveImage,
-  onAddSize, onUpdateSize, onRemoveSize,
 }: {
   variant: Variant;
   index: number;
@@ -487,9 +536,6 @@ function VariantCard({
   onSetDefault: (i: number) => void;
   onAddImages: (i: number, files: FileList) => void;
   onRemoveImage: (vi: number, ii: number) => void;
-  onAddSize: (vi: number) => void;
-  onUpdateSize: (vi: number, si: number, field: keyof SizeEntry, value: string) => void;
-  onRemoveSize: (vi: number, si: number) => void;
 }) {
   return (
     <div className={`variant-card${variant.isDefault ? " default" : ""}`}>
@@ -500,15 +546,39 @@ function VariantCard({
         >×</button>
       )}
 
-      <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
-        <Field label="Color">
-          <input className="input" value={variant.color} onChange={e => onUpdate(index, "color", e.target.value)} placeholder="e.g. Red" />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+        <Field label="Variant Name">
+          <input className="input" value={variant.name} onChange={e => onUpdate(index, "name", e.target.value)} placeholder="e.g. Single Occupancy" />
         </Field>
         <Field label="Price ($)">
           <input className="input" type="number" min="0" value={variant.price} onChange={e => onUpdate(index, "price", e.target.value)} placeholder="0.00" />
         </Field>
-        <Field label="Stock">
-          <input className="input" type="number" min="0" value={variant.stock} onChange={e => onUpdate(index, "stock", e.target.value)} placeholder="0" />
+      </div>
+
+      <div style={{ marginBottom: 10 }}>
+        <Field label="Variant Description">
+          <textarea className="input" rows={2} value={variant.description || ""} onChange={e => onUpdate(index, "description", e.target.value)} placeholder="Description specific to this variant" style={{ resize: "vertical" }} />
+        </Field>
+      </div>
+
+      {/* Optional Service Attributes */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+        <Field label="Duration (Optional)">
+          <input className="input" value={variant.duration || ""} onChange={e => onUpdate(index, "duration", e.target.value)} placeholder="e.g. 2 Hours, 1 Day" />
+        </Field>
+        <Field label="Capacity (Optional)">
+          <input className="input" value={variant.capacity || ""} onChange={e => onUpdate(index, "capacity", e.target.value)} placeholder="e.g. 2 Adults, 50 Seats" />
+        </Field>
+        <Field label="Max Guests (Optional)">
+          <input className="input" value={variant.maxGuests || ""} onChange={e => onUpdate(index, "maxGuests", e.target.value)} placeholder="e.g. 100" />
+        </Field>
+        <Field label="Room Type (Optional)">
+          <input className="input" value={variant.roomType || ""} onChange={e => onUpdate(index, "roomType", e.target.value)} placeholder="e.g. Deluxe, Suite" />
+        </Field>
+      </div>
+      <div style={{ marginBottom: 10 }}>
+        <Field label="Service Type (Optional)">
+          <input className="input" value={variant.serviceType || ""} onChange={e => onUpdate(index, "serviceType", e.target.value)} placeholder="e.g. Catering, Audio-Visual" />
         </Field>
       </div>
 
@@ -520,7 +590,7 @@ function VariantCard({
       </div>
 
       {/* Images */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginBottom: 10 }}>
+      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
         {variant.images.map((src, ii) => (
           <div key={ii} style={{ position: "relative" }}>
             <Image src={src} className="img-thumb" alt={`variant-${index}-img-${ii}`} width={40} height={40} style={{ objectFit: "cover" }} />
@@ -531,43 +601,6 @@ function VariantCard({
           + Image
           <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => e.target.files && onAddImages(index, e.target.files)} />
         </label>
-      </div>
-
-      {/* Sizes */}
-      <div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "#FF8C00" }}>Sizes</span>
-          <button className="btn-sm" onClick={() => onAddSize(index)}>+ Add Size</button>
-        </div>
-        {variant.sizes.length === 0 && (
-          <p style={{ fontSize: 11, color: "#4b5563", margin: 0 }}>No sizes added</p>
-        )}
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {variant.sizes.map((s, si) => (
-            <div key={si} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <input
-                className="input"
-                value={s.size}
-                onChange={e => onUpdateSize(index, si, "size", e.target.value)}
-                placeholder="e.g. M, XL, 42"
-                style={{ flex: 1 }}
-              />
-              <input
-                className="input"
-                type="number"
-                min="0"
-                value={s.stock}
-                onChange={e => onUpdateSize(index, si, "stock", e.target.value)}
-                placeholder="Stock"
-                style={{ width: 80 }}
-              />
-              <button
-                onClick={() => onRemoveSize(index, si)}
-                style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 16, lineHeight: 1 }}
-              >×</button>
-            </div>
-          ))}
-        </div>
       </div>
     </div>
   );
