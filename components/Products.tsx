@@ -147,7 +147,8 @@ export default function Products() {
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [amenities, setAmenities]   = useState<string[]>([]);
-  const [variants, setVariants]     = useState<Variant[]>([{ ...BLANK_VARIANT(), isDefault: true }]);
+  const [variants, setVariants]     = useState<Variant[]>([{ ...BLANK_VARIANT(), name: "Default", isDefault: true }]);
+  const [hasVariants, setHasVariants] = useState(false);
   const api = process.env.NEXT_PUBLIC_API_URL;
 
   const fetchProducts = useCallback(async () => {
@@ -200,10 +201,29 @@ export default function Products() {
     ));
   };
 
+  const toggleHasVariants = (checked: boolean) => {
+    setHasVariants(checked);
+    if (!checked) {
+      setVariants(prev => {
+        const first = prev[0] || BLANK_VARIANT();
+        return [{
+          ...first,
+          name: "Default",
+          isDefault: true
+        }];
+      });
+    } else {
+      setVariants(prev => {
+        return prev.map(v => v.name === "Default" ? { ...v, name: "" } : v);
+      });
+    }
+  };
+
   /* ── Reset ── */
   const resetForm = () => {
     setName(""); setDescription(""); setCategoryId(""); setAmenities([]);
-    setVariants([{ ...BLANK_VARIANT(), isDefault: true }]);
+    setVariants([{ ...BLANK_VARIANT(), name: "Default", isDefault: true }]);
+    setHasVariants(false);
     setEditId(null); setError("");
   };
 
@@ -211,12 +231,17 @@ export default function Products() {
   const validate = (): string | null => {
     if (!name.trim()) return "Service name is required.";
     if (!description.trim()) return "Description is required.";
-    if (variants.length === 0) return "At least one variant is required.";
-    const names = variants.map(v => v.name.trim().toLowerCase());
-    if (names.some(n => !n)) return "Every variant must have a name.";
-    if (new Set(names).size !== names.length) return "Each variant name must be unique.";
-    for (const v of variants) {
-      if (!v.price || Number(v.price) <= 0) return "Every variant price must be > 0.";
+    if (hasVariants) {
+      if (variants.length === 0) return "At least one variant is required.";
+      const names = variants.map(v => v.name.trim().toLowerCase());
+      if (names.some(n => !n)) return "Every variant must have a name.";
+      if (new Set(names).size !== names.length) return "Each variant name must be unique.";
+      for (const v of variants) {
+        if (!v.price || Number(v.price) <= 0) return "Every variant price must be > 0.";
+      }
+    } else {
+      const p = variants[0]?.price;
+      if (p && (isNaN(Number(p)) || Number(p) < 0)) return "Price cannot be negative.";
     }
     return null;
   };
@@ -231,10 +256,17 @@ export default function Products() {
       name, description,
       category: categoryId || undefined,
       amenities,
-      variants: variants.map(v => ({
-        ...v,
-        price: Number(v.price),
-      })),
+      variants: hasVariants
+        ? variants.map(v => ({
+            ...v,
+            price: Number(v.price) || 0,
+          }))
+        : [{
+            ...variants[0],
+            name: "Default",
+            price: Number(variants[0]?.price) || 0,
+            isDefault: true
+          }],
     };
 
     try {
@@ -284,6 +316,10 @@ export default function Products() {
       roomType: v.roomType || "",
       serviceType: v.serviceType || ""
     })));
+
+    const hasMultiple = p.variants.length > 1 || (p.variants.length === 1 && p.variants[0]?.name !== "Default");
+    setHasVariants(hasMultiple);
+
     setError("");
     setShowModal(true);
   };
@@ -477,29 +513,88 @@ export default function Products() {
               </Field>
             </div>
 
-            {/* Variants */}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-              <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
-                Variants <span style={{ color: "#4b5563", fontWeight: 400 }}>({variants.length})</span>
-              </div>
-              <button className="btn-sm" onClick={addVariant}>+ Add Variant</button>
+            {/* Toggle variants */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: "#1B5E20", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
+                <input type="checkbox" checked={hasVariants} onChange={e => toggleHasVariants(e.target.checked)} />
+                This product has multiple variants (e.g., different capacities or pricing structures)
+              </label>
             </div>
 
-            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-              {variants.map((v, i) => (
-                <VariantCard
-                  key={i}
-                  variant={v}
-                  index={i}
-                  total={variants.length}
-                  onUpdate={updateVariant}
-                  onRemove={removeVariant}
-                  onSetDefault={setDefault}
-                  onAddImages={addImages}
-                  onRemoveImage={removeImage}
-                />
-              ))}
-            </div>
+            {/* Simple Product Fields (No Variants) */}
+            {!hasVariants && variants[0] && (
+              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 24, borderTop: "1px solid #e2e8f0", paddingTop: 20 }}>
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <Field label="Price ($)">
+                    <input className="input" type="number" min="0" value={variants[0].price} onChange={e => updateVariant(0, "price", e.target.value)} placeholder="0.00" />
+                  </Field>
+                  <Field label="Duration (Optional)">
+                    <input className="input" value={variants[0].duration || ""} onChange={e => updateVariant(0, "duration", e.target.value)} placeholder="e.g. 2 Hours, 1 Day" />
+                  </Field>
+                </div>
+                
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <Field label="Capacity (Optional)">
+                    <input className="input" value={variants[0].capacity || ""} onChange={e => updateVariant(0, "capacity", e.target.value)} placeholder="e.g. 2 Adults, 50 Seats" />
+                  </Field>
+                  <Field label="Max Guests (Optional)">
+                    <input className="input" value={variants[0].maxGuests || ""} onChange={e => updateVariant(0, "maxGuests", e.target.value)} placeholder="e.g. 100" />
+                  </Field>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
+                  <Field label="Room Type (Optional)">
+                    <input className="input" value={variants[0].roomType || ""} onChange={e => updateVariant(0, "roomType", e.target.value)} placeholder="e.g. Deluxe, Suite" />
+                  </Field>
+                  <Field label="Service Type (Optional)">
+                    <input className="input" value={variants[0].serviceType || ""} onChange={e => updateVariant(0, "serviceType", e.target.value)} placeholder="e.g. Catering, Audio-Visual" />
+                  </Field>
+                </div>
+
+                <Field label="Images">
+                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 4 }}>
+                    {variants[0].images.map((src, ii) => (
+                      <div key={ii} style={{ position: "relative" }}>
+                        <Image src={src} className="img-thumb" alt={`product-img-${ii}`} width={40} height={40} style={{ objectFit: "cover" }} />
+                        <button className="img-remove" onClick={() => removeImage(0, ii)}>×</button>
+                      </div>
+                    ))}
+                    <label style={{ cursor: "pointer", background: "#f3f4f6", borderRadius: 6, padding: "6px 10px", fontSize: 11, color: "#1B5E20", border: "1px solid #e2e8f0" }}>
+                      + Image
+                      <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => e.target.files && addImages(0, e.target.files)} />
+                    </label>
+                  </div>
+                </Field>
+              </div>
+            )}
+
+            {/* Advanced Product Fields (With Variants) */}
+            {hasVariants && (
+              <>
+                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
+                    Variants <span style={{ color: "#4b5563", fontWeight: 400 }}>({variants.length})</span>
+                  </div>
+                  <button className="btn-sm" onClick={addVariant}>+ Add Variant</button>
+                </div>
+
+                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                  {variants.map((v, i) => (
+                    <VariantCard
+                      key={i}
+                      variant={v}
+                      index={i}
+                      total={variants.length}
+                      onUpdate={updateVariant}
+                      onRemove={removeVariant}
+                      onSetDefault={setDefault}
+                      onAddImages={addImages}
+                      onRemoveImage={removeImage}
+                    />
+                  ))}
+                </div>
+              </>
+            )}
 
             <div style={{ display: "flex", gap: 10, marginTop: 24, justifyContent: "flex-end" }}>
               <button className="btn-ghost" onClick={() => { setShowModal(false); resetForm(); }}>Cancel</button>
