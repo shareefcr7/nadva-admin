@@ -262,6 +262,7 @@ export default function Products() {
     const payload = {
       name, description,
       category: categoryId || undefined,
+      amenities,
       variants: variants.map((v, index) => {
         const vPrice = Number(v.price) || (v.sizes.length > 0 ? Number(v.sizes[0].price) : 0);
         const optionName = v.color || (variants.length === 1 ? 'Default' : `Option ${index + 1}`);
@@ -480,6 +481,39 @@ export default function Products() {
                   {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                 </select>
               </Field>
+              <Field label="Amenities">
+                <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginTop: 4 }}>
+                  {AVAILABLE_AMENITIES.map(amenity => {
+                    const isSelected = amenities.includes(amenity);
+                    return (
+                      <button
+                        key={amenity}
+                        type="button"
+                        onClick={() => {
+                          if (isSelected) {
+                            setAmenities(prev => prev.filter(a => a !== amenity));
+                          } else {
+                            setAmenities(prev => [...prev, amenity]);
+                          }
+                        }}
+                        style={{
+                          background: isSelected ? "#1B5E20" : "#f3f4f6",
+                          color: isSelected ? "#fff" : "#4b5563",
+                          border: `1px solid ${isSelected ? "#1B5E20" : "#e2e8f0"}`,
+                          borderRadius: 20,
+                          padding: "6px 14px",
+                          fontSize: 12,
+                          fontWeight: 600,
+                          cursor: "pointer",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        {amenity}
+                      </button>
+                    );
+                  })}
+                </div>
+              </Field>
             </div>
 
             {/* Variants */}
@@ -560,10 +594,31 @@ function VariantCard({
         >×</button>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 10, marginBottom: 10 }}>
-        <Field label="Flavour">
-          <input className="input" value={variant.color} onChange={e => onUpdate(index, "color", e.target.value)} placeholder="e.g. Red" style={{ width: "100%" }} />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+        <Field label="Variant Name">
+          <input className="input" value={variant.color} onChange={e => onUpdate(index, "color", e.target.value)} placeholder="e.g. Deluxe Room" style={{ width: "100%" }} />
         </Field>
+        <Field label="Price ($)">
+          <input className="input" type="number" min="0" value={variant.price} onChange={e => onUpdate(index, "price", e.target.value)} placeholder="0" style={{ width: "100%" }} />
+        </Field>
+      </div>
+
+      <div style={{ marginBottom: 10 }}>
+        <Field label="Variant Description">
+          <textarea className="input" value={variant.description || ""} onChange={e => onUpdate(index, "description", e.target.value)} placeholder="Variant details..." rows={3} style={{ width: "100%", resize: "vertical" }} />
+        </Field>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
+        <Field label="Duration (Optional)">
+          <input className="input" type="text" value={variant.duration || ""} onChange={e => onUpdate(index, "duration", e.target.value)} placeholder="e.g. 24 Hours" style={{ width: "100%" }} />
+        </Field>
+        <Field label="Capacity (Optional)">
+          <input className="input" type="text" value={variant.capacity || ""} onChange={e => onUpdate(index, "capacity", e.target.value)} placeholder="e.g. 10 People" style={{ width: "100%" }} />
+        </Field>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
         <Field label="Total Stock">
           <input className="input" type="number" min="0" value={variant.stock} onChange={e => onUpdate(index, "stock", e.target.value)} placeholder="0" style={{ width: "100%" }} />
         </Field>
@@ -654,88 +709,6 @@ function VariantCard({
         </div>
       </div>
 
-      {/* Sizes */}
-      <div>
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-          <span style={{ fontSize: 12, fontWeight: 600, color: "#FF8C00" }}>Quantity</span>
-          <button className="btn-sm" onClick={() => onAddSize(index)}>+ Add Quantity</button>
-        </div>
-
-        {/* Quick Presets */}
-        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
-          <span style={{ fontSize: 10, color: "#555570", alignSelf: "center", fontWeight: 700, textTransform: "uppercase" }}>Presets:</span>
-          <button 
-            type="button" 
-            className="btn-sm" 
-            style={{ background: "#f9fafb", border: "1px solid #e2e8f0", color: "#4b5563", padding: "3px 8px", fontSize: "10px" }}
-            onClick={() => onApplyPreset(index, ["S", "M", "L", "XL"])}
-          >👕 Shirts (S-XL)</button>
-          <button 
-            type="button" 
-            className="btn-sm" 
-            style={{ background: "#f9fafb", border: "1px solid #e2e8f0", color: "#4b5563", padding: "3px 8px", fontSize: "10px" }}
-            onClick={() => onApplyPreset(index, ["28", "30", "32", "34", "36"])}
-          >👖 Pants (28-36)</button>
-          <button 
-            type="button" 
-            className="btn-sm" 
-            style={{ background: "#f9fafb", border: "1px solid #e2e8f0", color: "#4b5563", padding: "3px 8px", fontSize: "10px" }}
-            onClick={() => onApplyPreset(index, ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"])}
-          >👟 Shoes (6-10)</button>
-          <button 
-            type="button" 
-            className="btn-sm" 
-            style={{ background: "#f9fafb", border: "1px solid #e2e8f0", color: "#4b5563", padding: "3px 8px", fontSize: "10px" }}
-            onClick={() => onApplyPreset(index, ["One Size"])}
-          >📦 One Size</button>
-        </div>
-        {variant.sizes.length === 0 && (
-          <p style={{ fontSize: 11, color: "#4b5563", margin: 0 }}>No sizes added</p>
-        )}
-        {variant.sizes.length > 0 && (
-          <div style={{ display: "flex", gap: 8, marginBottom: 4, paddingLeft: 4 }}>
-            <span style={{ flex: 1, fontSize: 10, fontWeight: 700, color: "#4b5563", textTransform: "uppercase" }}>Label</span>
-            <span style={{ width: 80, fontSize: 10, fontWeight: 700, color: "#4b5563", textTransform: "uppercase" }}>Price ₹</span>
-            <span style={{ width: 80, fontSize: 10, fontWeight: 700, color: "#4b5563", textTransform: "uppercase" }}>Stock</span>
-            <span style={{ width: 24 }}></span>
-          </div>
-        )}
-        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-          {variant.sizes.map((s, si) => (
-            <div key={si} style={{ display: "flex", gap: 8, alignItems: "center" }}>
-              <input
-                className="input"
-                value={s.size}
-                onChange={e => onUpdateSize(index, si, "size", e.target.value)}
-                placeholder="e.g. 100g, 250g"
-                style={{ flex: 1 }}
-              />
-              <input
-                className="input"
-                type="number"
-                min="0"
-                value={s.price}
-                onChange={e => onUpdateSize(index, si, "price", e.target.value)}
-                placeholder="42"
-                style={{ width: 80 }}
-              />
-              <input
-                className="input"
-                type="number"
-                min="0"
-                value={s.stock}
-                onChange={e => onUpdateSize(index, si, "stock", e.target.value)}
-                placeholder="0"
-                style={{ width: 80 }}
-              />
-              <button
-                onClick={() => onRemoveSize(index, si)}
-                style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 16, lineHeight: 1, width: 24 }}
-              >×</button>
-            </div>
-          ))}
-        </div>
-      </div>
     </div>
   );
 }
