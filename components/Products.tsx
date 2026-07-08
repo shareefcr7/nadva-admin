@@ -3,10 +3,15 @@ import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 
 /* ─── Types ─────────────────────────────────────────── */
+type SizeEntry = { size: string; stock: string; price: string };
+
 type Variant = {
   _id?: string;
   name: string;
+  color: string;
   price: string;
+  stock: string;
+  sizes: SizeEntry[];
   description?: string;
   images: string[];       // base64 previews / stored URLs
   isDefault: boolean;
@@ -42,7 +47,10 @@ const AVAILABLE_AMENITIES = [
 
 const BLANK_VARIANT = (): Variant => ({
   name: "",
+  color: "",
   price: "",
+  stock: "0",
+  sizes: [],
   description: "",
   images: [],
   isDefault: false,
@@ -147,8 +155,7 @@ export default function Products() {
   const [description, setDescription] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [amenities, setAmenities]   = useState<string[]>([]);
-  const [variants, setVariants]     = useState<Variant[]>([{ ...BLANK_VARIANT(), name: "Default", isDefault: true }]);
-  const [hasVariants, setHasVariants] = useState(false);
+  const [variants, setVariants]     = useState<Variant[]>([{ ...BLANK_VARIANT(), color: "Default", isDefault: true }]);
   const api = process.env.NEXT_PUBLIC_API_URL;
 
   const fetchProducts = useCallback(async () => {
@@ -201,29 +208,34 @@ export default function Products() {
     ));
   };
 
-  const toggleHasVariants = (checked: boolean) => {
-    setHasVariants(checked);
-    if (!checked) {
-      setVariants(prev => {
-        const first = prev[0] || BLANK_VARIANT();
-        return [{
-          ...first,
-          name: "Default",
-          isDefault: true
-        }];
-      });
-    } else {
-      setVariants(prev => {
-        return prev.map(v => v.name === "Default" ? { ...v, name: "" } : v);
-      });
-    }
+  const addSize = (vi: number) => {
+    setVariants(prev => prev.map((v, idx) =>
+      idx === vi ? { ...v, sizes: [...v.sizes, { size: "", stock: "0", price: "" }] } : v
+    ));
+  };
+
+  const applyPreset = (vi: number, labels: string[]) => {
+    setVariants(prev => prev.map((v, idx) =>
+      idx === vi ? { ...v, sizes: labels.map(l => ({ size: l, stock: "10", price: "" })) } : v
+    ));
+  };
+
+  const updateSize = (vi: number, si: number, field: keyof SizeEntry, value: string) => {
+    setVariants(prev => prev.map((v, idx) =>
+      idx === vi ? { ...v, sizes: v.sizes.map((s, i) => i === si ? { ...s, [field]: value } : s) } : v
+    ));
+  };
+
+  const removeSize = (vi: number, si: number) => {
+    setVariants(prev => prev.map((v, idx) =>
+      idx === vi ? { ...v, sizes: v.sizes.filter((_, i) => i !== si) } : v
+    ));
   };
 
   /* ── Reset ── */
   const resetForm = () => {
     setName(""); setDescription(""); setCategoryId(""); setAmenities([]);
-    setVariants([{ ...BLANK_VARIANT(), name: "Default", isDefault: true }]);
-    setHasVariants(false);
+    setVariants([{ ...BLANK_VARIANT(), color: "Default", isDefault: true }]);
     setEditId(null); setError("");
   };
 
@@ -231,17 +243,12 @@ export default function Products() {
   const validate = (): string | null => {
     if (!name.trim()) return "Service name is required.";
     if (!description.trim()) return "Description is required.";
-    if (hasVariants) {
-      if (variants.length === 0) return "At least one variant is required.";
-      const names = variants.map(v => v.name.trim().toLowerCase());
-      if (names.some(n => !n)) return "Every variant must have a name.";
-      if (new Set(names).size !== names.length) return "Each variant name must be unique.";
-      for (const v of variants) {
-        if (!v.price || Number(v.price) <= 0) return "Every variant price must be > 0.";
-      }
-    } else {
-      const p = variants[0]?.price;
-      if (p && (isNaN(Number(p)) || Number(p) < 0)) return "Price cannot be negative.";
+    if (variants.length === 0) return "At least one variant is required.";
+    const colors = variants.map(v => v.color.trim().toLowerCase()).filter(Boolean);
+    if (new Set(colors).size !== colors.length) return "Each variant flavour must be unique.";
+    for (const v of variants) {
+      const vPrice = Number(v.price) || (v.sizes.length > 0 ? Number(v.sizes[0].price) : 0);
+      if (vPrice <= 0) return "Every variant must have a valid price (check your quantities).";
     }
     return null;
   };
@@ -255,18 +262,22 @@ export default function Products() {
     const payload = {
       name, description,
       category: categoryId || undefined,
-      amenities,
-      variants: hasVariants
-        ? variants.map(v => ({
-            ...v,
-            price: Number(v.price) || 0,
+      variants: variants.map((v, index) => {
+        const vPrice = Number(v.price) || (v.sizes.length > 0 ? Number(v.sizes[0].price) : 0);
+        const optionName = v.color || (variants.length === 1 ? 'Default' : `Option ${index + 1}`);
+        return {
+          ...v,
+          name: optionName,
+          color: optionName,
+          price: vPrice,
+          stock: Number(v.stock) || 0,
+          sizes: v.sizes.map(s => ({
+            ...s,
+            price: Number(s.price) || vPrice,
+            stock: Number(s.stock) || 0
           }))
-        : [{
-            ...variants[0],
-            name: "Default",
-            price: Number(variants[0]?.price) || 0,
-            isDefault: true
-          }],
+        };
+      }),
     };
 
     try {
@@ -307,19 +318,11 @@ export default function Products() {
     setAmenities(p.amenities || []);
     setVariants(p.variants.map(v => ({
       ...v,
-      name: v.name || (v as any).color || "", // fallback copy of color to name for backward compatibility
+      color: v.color || v.name || "",
       price: String(v.price),
-      description: v.description || "",
-      duration: v.duration || "",
-      capacity: v.capacity || "",
-      maxGuests: v.maxGuests || "",
-      roomType: v.roomType || "",
-      serviceType: v.serviceType || ""
+      stock: String(v.stock || 0),
+      sizes: Array.isArray(v.sizes) ? v.sizes.map(s => ({ ...s, price: String(s.price), stock: String(s.stock) })) : []
     })));
-
-    const hasMultiple = p.variants.length > 1 || (p.variants.length === 1 && p.variants[0]?.name !== "Default");
-    setHasVariants(hasMultiple);
-
     setError("");
     setShowModal(true);
   };
@@ -349,7 +352,7 @@ export default function Products() {
         .btn-sm:hover{background:#e5e7eb;}
         .input{background:#ffffff;border:1px solid #e2e8f0;border-radius:8px;color:#111827;padding:10px;width:100%;box-sizing:border-box;font-size:13px;outline:none;}
         .input:focus{border-color:#FF8C00;}
-        .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:100;}
+        .overlay{position:fixed;inset:0;background:rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;z-index:9999;}
         .variant-card{background:#f8f9fa;border:1px solid #e2e8f0;border-radius:10px;padding:16px;position:relative;}
         .variant-card.default{border-color:#FF8C00;}
         .err{color:#ef4444;font-size:12px;margin-bottom:12px;background:#ef444415;padding:8px 12px;border-radius:6px;}
@@ -477,124 +480,35 @@ export default function Products() {
                   {categories.map(c => <option key={c._id} value={c._id}>{c.name}</option>)}
                 </select>
               </Field>
-              <Field label="Amenities">
-                <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 4 }}>
-                  {AVAILABLE_AMENITIES.map(amenity => {
-                    const selected = amenities.includes(amenity);
-                    return (
-                      <button
-                        key={amenity}
-                        type="button"
-                        onClick={() => {
-                          if (selected) {
-                            setAmenities(amenities.filter(a => a !== amenity));
-                          } else {
-                            setAmenities([...amenities, amenity]);
-                          }
-                        }}
-                        style={{
-                          background: selected ? "#1B5E20" : "#fff",
-                          color: selected ? "#fff" : "#1B5E20",
-                          border: "1px solid",
-                          borderColor: selected ? "#1B5E20" : "#e2e8f0",
-                          borderRadius: 20,
-                          padding: "6px 14px",
-                          fontSize: 12,
-                          fontWeight: 600,
-                          cursor: "pointer",
-                          transition: "all 0.2s"
-                        }}
-                      >
-                        {amenity}
-                      </button>
-                    );
-                  })}
-                </div>
-              </Field>
             </div>
 
-            {/* Toggle variants */}
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 20 }}>
-              <label style={{ fontSize: 13, fontWeight: 600, color: "#1B5E20", display: "flex", alignItems: "center", gap: 8, cursor: "pointer" }}>
-                <input type="checkbox" checked={hasVariants} onChange={e => toggleHasVariants(e.target.checked)} />
-                This product has multiple variants (e.g., different capacities or pricing structures)
-              </label>
-            </div>
-
-            {/* Simple Product Fields (No Variants) */}
-            {!hasVariants && variants[0] && (
-              <div style={{ display: "flex", flexDirection: "column", gap: 14, marginBottom: 24, borderTop: "1px solid #e2e8f0", paddingTop: 20 }}>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <Field label="Price ($)">
-                    <input className="input" type="number" min="0" value={variants[0].price} onChange={e => updateVariant(0, "price", e.target.value)} placeholder="0.00" />
-                  </Field>
-                  <Field label="Duration (Optional)">
-                    <input className="input" value={variants[0].duration || ""} onChange={e => updateVariant(0, "duration", e.target.value)} placeholder="e.g. 2 Hours, 1 Day" />
-                  </Field>
-                </div>
-                
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <Field label="Capacity (Optional)">
-                    <input className="input" value={variants[0].capacity || ""} onChange={e => updateVariant(0, "capacity", e.target.value)} placeholder="e.g. 2 Adults, 50 Seats" />
-                  </Field>
-                  <Field label="Max Guests (Optional)">
-                    <input className="input" value={variants[0].maxGuests || ""} onChange={e => updateVariant(0, "maxGuests", e.target.value)} placeholder="e.g. 100" />
-                  </Field>
-                </div>
-
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10 }}>
-                  <Field label="Room Type (Optional)">
-                    <input className="input" value={variants[0].roomType || ""} onChange={e => updateVariant(0, "roomType", e.target.value)} placeholder="e.g. Deluxe, Suite" />
-                  </Field>
-                  <Field label="Service Type (Optional)">
-                    <input className="input" value={variants[0].serviceType || ""} onChange={e => updateVariant(0, "serviceType", e.target.value)} placeholder="e.g. Catering, Audio-Visual" />
-                  </Field>
-                </div>
-
-                <Field label="Images">
-                  <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center", marginTop: 4 }}>
-                    {variants[0].images.map((src, ii) => (
-                      <div key={ii} style={{ position: "relative" }}>
-                        <Image src={src} className="img-thumb" alt={`product-img-${ii}`} width={40} height={40} style={{ objectFit: "cover" }} />
-                        <button className="img-remove" onClick={() => removeImage(0, ii)}>×</button>
-                      </div>
-                    ))}
-                    <label style={{ cursor: "pointer", background: "#f3f4f6", borderRadius: 6, padding: "6px 10px", fontSize: 11, color: "#1B5E20", border: "1px solid #e2e8f0" }}>
-                      + Image
-                      <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => e.target.files && addImages(0, e.target.files)} />
-                    </label>
-                  </div>
-                </Field>
+            {/* Variants */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
+              <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
+                Variants <span style={{ color: "#4b5563", fontWeight: 400 }}>({variants.length})</span>
               </div>
-            )}
+              <button className="btn-sm" onClick={addVariant}>+ Add Variant</button>
+            </div>
 
-            {/* Advanced Product Fields (With Variants) */}
-            {hasVariants && (
-              <>
-                <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: "#111827" }}>
-                    Variants <span style={{ color: "#4b5563", fontWeight: 400 }}>({variants.length})</span>
-                  </div>
-                  <button className="btn-sm" onClick={addVariant}>+ Add Variant</button>
-                </div>
-
-                <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                  {variants.map((v, i) => (
-                    <VariantCard
-                      key={i}
-                      variant={v}
-                      index={i}
-                      total={variants.length}
-                      onUpdate={updateVariant}
-                      onRemove={removeVariant}
-                      onSetDefault={setDefault}
-                      onAddImages={addImages}
-                      onRemoveImage={removeImage}
-                    />
-                  ))}
-                </div>
-              </>
-            )}
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              {variants.map((v, i) => (
+                <VariantCard
+                  key={i}
+                  variant={v}
+                  index={i}
+                  total={variants.length}
+                  onUpdate={updateVariant}
+                  onRemove={removeVariant}
+                  onSetDefault={setDefault}
+                  onAddImages={addImages}
+                  onRemoveImage={removeImage}
+                  onAddSize={addSize}
+                  onUpdateSize={updateSize}
+                  onRemoveSize={removeSize}
+                  onApplyPreset={applyPreset}
+                />
+              ))}
+            </div>
 
             <div style={{ display: "flex", gap: 10, marginTop: 24, justifyContent: "flex-end" }}>
               <button className="btn-ghost" onClick={() => { setShowModal(false); resetForm(); }}>Cancel</button>
@@ -622,6 +536,7 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 /* ─── VariantCard ────────────────────────────────────── */
 function VariantCard({
   variant, index, total, onUpdate, onRemove, onSetDefault, onAddImages, onRemoveImage,
+  onAddSize, onUpdateSize, onRemoveSize, onApplyPreset,
 }: {
   variant: Variant;
   index: number;
@@ -631,6 +546,10 @@ function VariantCard({
   onSetDefault: (i: number) => void;
   onAddImages: (i: number, files: FileList) => void;
   onRemoveImage: (vi: number, ii: number) => void;
+  onAddSize: (vi: number) => void;
+  onUpdateSize: (vi: number, si: number, field: keyof SizeEntry, value: string) => void;
+  onRemoveSize: (vi: number, si: number) => void;
+  onApplyPreset: (vi: number, labels: string[]) => void;
 }) {
   return (
     <div className={`variant-card${variant.isDefault ? " default" : ""}`}>
@@ -641,39 +560,12 @@ function VariantCard({
         >×</button>
       )}
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-        <Field label="Variant Name">
-          <input className="input" value={variant.name} onChange={e => onUpdate(index, "name", e.target.value)} placeholder="e.g. Single Occupancy" />
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 120px", gap: 10, marginBottom: 10 }}>
+        <Field label="Flavour">
+          <input className="input" value={variant.color} onChange={e => onUpdate(index, "color", e.target.value)} placeholder="e.g. Red" style={{ width: "100%" }} />
         </Field>
-        <Field label="Price ($)">
-          <input className="input" type="number" min="0" value={variant.price} onChange={e => onUpdate(index, "price", e.target.value)} placeholder="0.00" />
-        </Field>
-      </div>
-
-      <div style={{ marginBottom: 10 }}>
-        <Field label="Variant Description">
-          <textarea className="input" rows={2} value={variant.description || ""} onChange={e => onUpdate(index, "description", e.target.value)} placeholder="Description specific to this variant" style={{ resize: "vertical" }} />
-        </Field>
-      </div>
-
-      {/* Optional Service Attributes */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 10, marginBottom: 10 }}>
-        <Field label="Duration (Optional)">
-          <input className="input" value={variant.duration || ""} onChange={e => onUpdate(index, "duration", e.target.value)} placeholder="e.g. 2 Hours, 1 Day" />
-        </Field>
-        <Field label="Capacity (Optional)">
-          <input className="input" value={variant.capacity || ""} onChange={e => onUpdate(index, "capacity", e.target.value)} placeholder="e.g. 2 Adults, 50 Seats" />
-        </Field>
-        <Field label="Max Guests (Optional)">
-          <input className="input" value={variant.maxGuests || ""} onChange={e => onUpdate(index, "maxGuests", e.target.value)} placeholder="e.g. 100" />
-        </Field>
-        <Field label="Room Type (Optional)">
-          <input className="input" value={variant.roomType || ""} onChange={e => onUpdate(index, "roomType", e.target.value)} placeholder="e.g. Deluxe, Suite" />
-        </Field>
-      </div>
-      <div style={{ marginBottom: 10 }}>
-        <Field label="Service Type (Optional)">
-          <input className="input" value={variant.serviceType || ""} onChange={e => onUpdate(index, "serviceType", e.target.value)} placeholder="e.g. Catering, Audio-Visual" />
+        <Field label="Total Stock">
+          <input className="input" type="number" min="0" value={variant.stock} onChange={e => onUpdate(index, "stock", e.target.value)} placeholder="0" style={{ width: "100%" }} />
         </Field>
       </div>
 
@@ -684,18 +576,165 @@ function VariantCard({
         </label>
       </div>
 
-      {/* Images */}
-      <div style={{ display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
-        {variant.images.map((src, ii) => (
-          <div key={ii} style={{ position: "relative" }}>
-            <Image src={src} className="img-thumb" alt={`variant-${index}-img-${ii}`} width={40} height={40} style={{ objectFit: "cover" }} />
-            <button className="img-remove" onClick={() => onRemoveImage(index, ii)}>×</button>
+      {/* Images - Total 5 (1 Main + 4 Sub) */}
+      <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 15 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#FF8C00" }}>
+            Product Images <span style={{ color: "#555570", fontWeight: 400 }}>({variant.images.length}/5)</span>
+          </span>
+          {variant.images.length < 5 && (
+            <label style={{ cursor: "pointer", background: "#f3f4f6", borderRadius: 6, padding: "6px 12px", fontSize: 11, color: "#1B5E20", border: "1px solid #e2e8f0" }}>
+              + Add {variant.images.length === 0 ? "Main" : "Sub"} Image
+              <input 
+                type="file" 
+                accept="image/*" 
+                multiple={5 - variant.images.length > 1} 
+                style={{ display: "none" }} 
+                onChange={e => {
+                  if (e.target.files) {
+                    const remaining = 5 - variant.images.length;
+                    const filesToLoad = Array.from(e.target.files).slice(0, remaining);
+                    const dt = new DataTransfer();
+                    filesToLoad.forEach(f => dt.items.add(f));
+                    onAddImages(index, dt.files);
+                  }
+                }} 
+              />
+            </label>
+          )}
+        </div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
+          {[0, 1, 2, 3, 4].map((i) => {
+            const src = variant.images[i];
+            const isMain = i === 0;
+            
+            return (
+              <div key={i} style={{ 
+                position: "relative", 
+                aspectRatio: "1/1", 
+                background: "#f9fafb", 
+                borderRadius: 8, 
+                border: src ? "1px solid #e2e8f0" : "1px dashed #e2e8f0",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                overflow: "hidden"
+              }}>
+                {src ? (
+                  <>
+                    <Image src={src} alt={`img-${i}`} fill style={{ objectFit: "cover" }} unoptimized />
+                    <button className="img-remove" onClick={() => onRemoveImage(index, i)} style={{ zIndex: 2 }}>×</button>
+                    <div style={{ 
+                      position: "absolute", 
+                      bottom: 0, 
+                      left: 0, 
+                      right: 0, 
+                      background: isMain ? "#FF8C00" : "rgba(0,0,0,0.7)", 
+                      color: "#fff", 
+                      fontSize: "9px", 
+                      textAlign: "center", 
+                      padding: "2px 0",
+                      fontWeight: 700,
+                      textTransform: "uppercase",
+                      letterSpacing: "0.05em"
+                    }}>
+                      {isMain ? "MAIN" : `SUB ${i}`}
+                    </div>
+                  </>
+                ) : (
+                  <div style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600 }}>
+                    {isMain ? "MAIN" : `SUB ${i}`}
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* Sizes */}
+      <div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
+          <span style={{ fontSize: 12, fontWeight: 600, color: "#FF8C00" }}>Quantity</span>
+          <button className="btn-sm" onClick={() => onAddSize(index)}>+ Add Quantity</button>
+        </div>
+
+        {/* Quick Presets */}
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+          <span style={{ fontSize: 10, color: "#555570", alignSelf: "center", fontWeight: 700, textTransform: "uppercase" }}>Presets:</span>
+          <button 
+            type="button" 
+            className="btn-sm" 
+            style={{ background: "#f9fafb", border: "1px solid #e2e8f0", color: "#4b5563", padding: "3px 8px", fontSize: "10px" }}
+            onClick={() => onApplyPreset(index, ["S", "M", "L", "XL"])}
+          >👕 Shirts (S-XL)</button>
+          <button 
+            type="button" 
+            className="btn-sm" 
+            style={{ background: "#f9fafb", border: "1px solid #e2e8f0", color: "#4b5563", padding: "3px 8px", fontSize: "10px" }}
+            onClick={() => onApplyPreset(index, ["28", "30", "32", "34", "36"])}
+          >👖 Pants (28-36)</button>
+          <button 
+            type="button" 
+            className="btn-sm" 
+            style={{ background: "#f9fafb", border: "1px solid #e2e8f0", color: "#4b5563", padding: "3px 8px", fontSize: "10px" }}
+            onClick={() => onApplyPreset(index, ["UK 6", "UK 7", "UK 8", "UK 9", "UK 10"])}
+          >👟 Shoes (6-10)</button>
+          <button 
+            type="button" 
+            className="btn-sm" 
+            style={{ background: "#f9fafb", border: "1px solid #e2e8f0", color: "#4b5563", padding: "3px 8px", fontSize: "10px" }}
+            onClick={() => onApplyPreset(index, ["One Size"])}
+          >📦 One Size</button>
+        </div>
+        {variant.sizes.length === 0 && (
+          <p style={{ fontSize: 11, color: "#4b5563", margin: 0 }}>No sizes added</p>
+        )}
+        {variant.sizes.length > 0 && (
+          <div style={{ display: "flex", gap: 8, marginBottom: 4, paddingLeft: 4 }}>
+            <span style={{ flex: 1, fontSize: 10, fontWeight: 700, color: "#4b5563", textTransform: "uppercase" }}>Label</span>
+            <span style={{ width: 80, fontSize: 10, fontWeight: 700, color: "#4b5563", textTransform: "uppercase" }}>Price ₹</span>
+            <span style={{ width: 80, fontSize: 10, fontWeight: 700, color: "#4b5563", textTransform: "uppercase" }}>Stock</span>
+            <span style={{ width: 24 }}></span>
           </div>
-        ))}
-        <label style={{ cursor: "pointer", background: "#f3f4f6", borderRadius: 6, padding: "6px 10px", fontSize: 11, color: "#1B5E20" }}>
-          + Image
-          <input type="file" accept="image/*" multiple style={{ display: "none" }} onChange={e => e.target.files && onAddImages(index, e.target.files)} />
-        </label>
+        )}
+        <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+          {variant.sizes.map((s, si) => (
+            <div key={si} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              <input
+                className="input"
+                value={s.size}
+                onChange={e => onUpdateSize(index, si, "size", e.target.value)}
+                placeholder="e.g. 100g, 250g"
+                style={{ flex: 1 }}
+              />
+              <input
+                className="input"
+                type="number"
+                min="0"
+                value={s.price}
+                onChange={e => onUpdateSize(index, si, "price", e.target.value)}
+                placeholder="42"
+                style={{ width: 80 }}
+              />
+              <input
+                className="input"
+                type="number"
+                min="0"
+                value={s.stock}
+                onChange={e => onUpdateSize(index, si, "stock", e.target.value)}
+                placeholder="0"
+                style={{ width: 80 }}
+              />
+              <button
+                onClick={() => onRemoveSize(index, si)}
+                style={{ background: "transparent", border: "none", color: "#ef4444", cursor: "pointer", fontSize: 16, lineHeight: 1, width: 24 }}
+              >×</button>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
