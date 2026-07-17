@@ -118,8 +118,7 @@ export default function Banners() {
         @media (max-width: 768px) {
           .banner-card { flex-direction: column !important; gap: 12px !important; padding: 12px !important; }
           .banner-preview-wrapper { flex-direction: column; gap: 12px; }
-          .banner-preview-item { width: 100%; }
-          .banner-preview-image { width: 100%; height: 150px !important; }
+          .banner-preview-item { width: 100%; display: flex; flex-direction: column; align-items: center; }
           .banner-actions { flex-direction: column !important; gap: 12px; }
           .btn-primary { width: 100%; }
           .btn-ghost { width: 100%; }
@@ -128,7 +127,6 @@ export default function Banners() {
         /* Extra small - further optimization */
         @media (max-width: 640px) {
           .overlay { padding: 12px; }
-          .banner-preview-image { height: 120px !important; }
         }
       `}</style>
 
@@ -151,16 +149,16 @@ export default function Banners() {
               {/* Desktop preview */}
               <div className="banner-preview-item">
                 <span className="banner-preview-label">Desktop</span>
-                <div className="banner-preview-image" style={{ width: "240px", height: "120px" }}>
-                  <Image src={banner.desktopImage} alt="desktop banner" width={240} height={120} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <div className="banner-preview-image" style={{ width: "240px", height: "auto" }}>
+                  <img src={banner.desktopImage} alt="desktop banner" style={{ width: "100%", height: "auto", objectFit: "contain" }} />
                 </div>
               </div>
-
+ 
               {/* Mobile preview */}
               <div className="banner-preview-item">
                 <span className="banner-preview-label">Mobile</span>
-                <div className="banner-preview-image" style={{ width: "80px", height: "120px" }}>
-                  <Image src={banner.mobileImage} alt="mobile banner" width={80} height={120} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                <div className="banner-preview-image" style={{ width: "80px", height: "auto" }}>
+                  <img src={banner.mobileImage} alt="mobile banner" style={{ width: "100%", height: "auto", objectFit: "contain" }} />
                 </div>
               </div>
             </div>
@@ -186,13 +184,11 @@ export default function Banners() {
               <Field label="Desktop Image (Required)">
                 <label className="upload-box" style={{ cursor: "pointer", padding: "20px 16px" }}>
                   {desktopImage ? (
-                    <div style={{ position: "relative", width: "100%", height: "150px" }}>
-                      <Image
+                    <div style={{ position: "relative", width: "100%", height: "auto" }}>
+                      <img
                         src={desktopImage}
                         alt="desktop preview"
-                        width={400}
-                        height={150}
-                        style={{ width: "100%", height: "100%", borderRadius: 6, objectFit: "cover" }}
+                        style={{ width: "100%", height: "auto", borderRadius: 6, objectFit: "contain" }}
                       />
                       <div style={{ position: "absolute", top: 8, right: 8, background: "#FF8C00", color: "#fff", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
                         Selected
@@ -211,13 +207,11 @@ export default function Banners() {
               <Field label="Mobile Image (Required)">
                 <label className="upload-box" style={{ cursor: "pointer", padding: "20px 16px" }}>
                   {mobileImage ? (
-                    <div style={{ position: "relative", width: "100%", height: "150px" }}>
-                      <Image
+                    <div style={{ position: "relative", width: "100%", height: "auto" }}>
+                      <img
                         src={mobileImage}
                         alt="mobile preview"
-                        width={300}
-                        height={150}
-                        style={{ width: "100%", height: "100%", borderRadius: 6, objectFit: "cover" }}
+                        style={{ width: "100%", height: "auto", borderRadius: 6, objectFit: "contain" }}
                       />
                       <div style={{ position: "absolute", top: 8, right: 8, background: "#FF8C00", color: "#fff", padding: "4px 8px", borderRadius: 4, fontSize: 11, fontWeight: 600 }}>
                         Selected
