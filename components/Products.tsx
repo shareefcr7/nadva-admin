@@ -330,7 +330,7 @@ export default function Products() {
 
   /* ── Delete ── */
   const remove = async (id: string) => {
-    if (!confirm("Delete this product?")) return;
+    if (!confirm("Delete this tarif?")) return;
     const res = await fetch(`${api}/product/delete/${id}`, {
       method: "DELETE", headers: { Authorization: token() },
     });
@@ -386,21 +386,21 @@ export default function Products() {
       {/* Header */}
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 24, flexWrap: "wrap", gap: 12, width: "100%" }}>
         <div>
-          <h1 style={{ color: "#1B5E20", fontFamily: "'Syne',sans-serif", fontSize: "clamp(20px, 5vw, 26px)", fontWeight: 800, margin: 0 }}>Products</h1>
+          <h1 style={{ color: "#1B5E20", fontFamily: "'Syne',sans-serif", fontSize: "clamp(20px, 5vw, 26px)", fontWeight: 800, margin: 0 }}>Tarif</h1>
           <p style={{ color: "#4b5563", fontSize: 13, margin: "4px 0 0 0" }}>{products.length} total</p>
         </div>
-        <button className="btn-primary" onClick={() => { resetForm(); setShowModal(true); }}>+ Add Product</button>
+        <button className="btn-primary" onClick={() => { resetForm(); setShowModal(true); }}>+ Add Tarif</button>
       </div>
 
       {/* Search */}
-      <input className="input" style={{ marginBottom: 20, width: "100%" }} placeholder="Search products…" value={search} onChange={e => setSearch(e.target.value)} />
+      <input className="input" style={{ marginBottom: 20, width: "100%" }} placeholder="Search tarif…" value={search} onChange={e => setSearch(e.target.value)} />
 
       {/* Table */}
       <div className="card" style={{ overflowX: "auto", overflowY: "hidden", width: "100%" }}>
         <table style={{ width: "100%", borderCollapse: "collapse", minWidth: "600px" }}>
           <thead>
             <tr style={{ borderBottom: "1px solid #e2e8f0" }}>
-              <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Product</td>
+              <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Tarif</td>
               <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Description</td>
               <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Category</td>
               <td style={{ padding: "12px 20px", fontSize: 11, color: "#4b5563", fontWeight: 600, textTransform: "uppercase" }}>Variants</td>
@@ -409,7 +409,7 @@ export default function Products() {
           </thead>
           <tbody>
             {filtered.length === 0 && (
-              <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#4b5563", fontSize: 13 }}>No products yet</td></tr>
+              <tr><td colSpan={5} style={{ padding: 24, textAlign: "center", color: "#4b5563", fontSize: 13 }}>No tarif yet</td></tr>
             )}
             {filtered.map(p => {
               const def = p.variants?.find(v => v.isDefault) || p.variants?.[0];
@@ -462,7 +462,7 @@ export default function Products() {
         <div className="overlay" onClick={() => { setShowModal(false); resetForm(); }}>
           <div className="card modal-card" style={{ width: "clamp(300px, 90vw, 620px)", padding: "clamp(16px, 4vw, 28px)", maxHeight: "90vh", overflowY: "auto" }} onClick={e => e.stopPropagation()}>
             <div style={{ fontFamily: "'Syne',sans-serif", fontSize: 18, fontWeight: 700, color: "#1B5E20", marginBottom: 20 }}>
-              {editId ? "Edit Product" : "New Product"}
+              {editId ? "Edit Tarif" : "New Tarif"}
             </div>
 
             {error && <div className="err">{error}</div>}
@@ -547,7 +547,7 @@ export default function Products() {
             <div style={{ display: "flex", gap: 10, marginTop: 24, justifyContent: "flex-end" }}>
               <button className="btn-ghost" onClick={() => { setShowModal(false); resetForm(); }}>Cancel</button>
               <button className="btn-primary" onClick={saveProduct} disabled={saving}>
-                {saving ? "Saving…" : editId ? "Save Changes" : "Add Product"}
+                {saving ? "Saving…" : editId ? "Save Changes" : "Add Tarif"}
               </button>
             </div>
           </div>
@@ -631,81 +631,82 @@ function VariantCard({
         </label>
       </div>
 
-      {/* Images - Total 5 (1 Main + 4 Sub) */}
+      {/* Images - Unlimited */}
       <div style={{ display: "flex", flexDirection: "column", gap: 10, marginBottom: 15 }}>
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <span style={{ fontSize: 12, fontWeight: 600, color: "#FF8C00" }}>
-            Product Images <span style={{ color: "#555570", fontWeight: 400 }}>({variant.images.length}/5)</span>
+            Product Images <span style={{ color: "#555570", fontWeight: 400 }}>({variant.images.length})</span>
           </span>
-          {variant.images.length < 5 && (
-            <label style={{ cursor: "pointer", background: "#f3f4f6", borderRadius: 6, padding: "6px 12px", fontSize: 11, color: "#1B5E20", border: "1px solid #e2e8f0" }}>
-              + Add {variant.images.length === 0 ? "Main" : "Sub"} Image
-              <input 
-                type="file" 
-                accept="image/*" 
-                multiple={5 - variant.images.length > 1} 
-                style={{ display: "none" }} 
-                onChange={e => {
-                  if (e.target.files) {
-                    const remaining = 5 - variant.images.length;
-                    const filesToLoad = Array.from(e.target.files).slice(0, remaining);
-                    const dt = new DataTransfer();
-                    filesToLoad.forEach(f => dt.items.add(f));
-                    onAddImages(index, dt.files);
-                  }
-                }} 
-              />
-            </label>
-          )}
+          <label style={{ cursor: "pointer", background: "#f3f4f6", borderRadius: 6, padding: "6px 12px", fontSize: 11, color: "#1B5E20", border: "1px solid #e2e8f0" }}>
+            + Add Images
+            <input 
+              type="file" 
+              accept="image/*" 
+              multiple 
+              style={{ display: "none" }} 
+              onChange={e => {
+                if (e.target.files) {
+                  onAddImages(index, e.target.files);
+                }
+              }} 
+            />
+          </label>
         </div>
 
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(5, 1fr)", gap: 10 }}>
-          {[0, 1, 2, 3, 4].map((i) => {
-            const src = variant.images[i];
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(70px, 1fr))", gap: 10 }}>
+          {variant.images.map((src, i) => {
             const isMain = i === 0;
-            
             return (
               <div key={i} style={{ 
                 position: "relative", 
                 aspectRatio: "1/1", 
                 background: "#f9fafb", 
                 borderRadius: 8, 
-                border: src ? "1px solid #e2e8f0" : "1px dashed #e2e8f0",
+                border: "1px solid #e2e8f0",
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 justifyContent: "center",
                 overflow: "hidden"
               }}>
-                {src ? (
-                  <>
-                    <Image src={src} alt={`img-${i}`} fill style={{ objectFit: "cover" }} unoptimized />
-                    <button className="img-remove" onClick={() => onRemoveImage(index, i)} style={{ zIndex: 2 }}>×</button>
-                    <div style={{ 
-                      position: "absolute", 
-                      bottom: 0, 
-                      left: 0, 
-                      right: 0, 
-                      background: isMain ? "#FF8C00" : "rgba(0,0,0,0.7)", 
-                      color: "#fff", 
-                      fontSize: "9px", 
-                      textAlign: "center", 
-                      padding: "2px 0",
-                      fontWeight: 700,
-                      textTransform: "uppercase",
-                      letterSpacing: "0.05em"
-                    }}>
-                      {isMain ? "MAIN" : `SUB ${i}`}
-                    </div>
-                  </>
-                ) : (
-                  <div style={{ color: "#9ca3af", fontSize: 10, fontWeight: 600 }}>
-                    {isMain ? "MAIN" : `SUB ${i}`}
-                  </div>
-                )}
+                <Image src={src} alt={`img-${i}`} fill style={{ objectFit: "cover" }} unoptimized />
+                <button className="img-remove" onClick={() => onRemoveImage(index, i)} style={{ zIndex: 2 }}>×</button>
+                <div style={{ 
+                  position: "absolute", 
+                  bottom: 0, 
+                  left: 0, 
+                  right: 0, 
+                  background: isMain ? "#FF8C00" : "rgba(0,0,0,0.7)", 
+                  color: "#fff", 
+                  fontSize: "9px", 
+                  textAlign: "center", 
+                  padding: "2px 0",
+                  fontWeight: 700,
+                  textTransform: "uppercase",
+                  letterSpacing: "0.05em"
+                }}>
+                  {isMain ? "MAIN" : `SUB ${i}`}
+                </div>
               </div>
             );
           })}
+          {variant.images.length === 0 && (
+            <div style={{ 
+              gridColumn: "1 / -1",
+              background: "#f9fafb", 
+              borderRadius: 8, 
+              border: "1px dashed #e2e8f0",
+              padding: "16px 8px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              minHeight: "70px"
+            }}>
+              <div style={{ color: "#9ca3af", fontSize: 11, fontWeight: 600 }}>
+                No images added yet. Click "+ Add Images" to start.
+              </div>
+            </div>
+          )}
         </div>
       </div>
 
